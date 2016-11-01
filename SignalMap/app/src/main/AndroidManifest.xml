@@ -63,6 +63,9 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".CommunicatorActivity"
+            android:label="@string/communicator_title" />
+        <activity
             android:name=".LegalInfoActivity"
             android:label="@string/legal_info" />
         <activity
@@ -167,7 +170,6 @@
         <activity
             android:name=".VisibleRegionDemoActivity"
             android:label="@string/visible_region_demo_label" />
-        <activity android:name=".CommunicatorActivity"></activity>
     </application>
 
 </manifest>
