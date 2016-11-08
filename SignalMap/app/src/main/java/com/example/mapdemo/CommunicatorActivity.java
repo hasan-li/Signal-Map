@@ -29,6 +29,7 @@ import javax.net.ssl.HttpsURLConnection;
  */
 
 public class CommunicatorActivity extends AppCompatActivity {
+    private String baseUrl = "http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?";
     private static final String DEBUG_TAG = "HttpExample";
     private EditText urlText;
     private TextView textView;
@@ -52,11 +53,14 @@ public class CommunicatorActivity extends AppCompatActivity {
     // Before attempting to fetch the URL, makes sure that there is a network connection.
     public void myClickHandler(View view) {
         // Gets the URL from the UI's text field.
-        String stringUrl = "www.google.com";//urlText.getText().toString();
+        // String stringUrl = urlText.getText().toString();
+        String stringUrl = "x=59.0001251&y=112.147632";
+        stringUrl = baseUrl+stringUrl;
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
+            System.out.println("!!!! URL IS "+stringUrl);
             new DownloadWebpageTask().execute(stringUrl);
         } else {
             textView.setText("No network connection available.");
@@ -71,7 +75,6 @@ public class CommunicatorActivity extends AppCompatActivity {
     private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
-
             // params comes from the execute() call: params[0] is the url.
             try {
                 return downloadUrl(urls[0]);
