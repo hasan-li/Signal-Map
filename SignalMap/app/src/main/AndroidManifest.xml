@@ -16,10 +16,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.mapdemo">
 
+    <uses-sdk android:minSdkVersion="17"
+        android:targetSdkVersion="23"
+        android:maxSdkVersion="23" />
     // get post methods
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -27,6 +30,7 @@
          location permissions for the 'MyLocation' functionality.
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <!-- EXTERNAL_STORAGE permissions are optional for Android 6.0 onwards. -->
     <uses-permission
