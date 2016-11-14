@@ -40,6 +40,9 @@
     <string name="no_demos">No demos</string>
     <string name="play_services_not_installed">Google Play services is not installed on this device.</string>
 
+    <string name="coordinates_test_title">Coordinates Test</string>
+    <string name="coordinates_test_description">Find the location coordinates</string>
+
     <string name="alpha">Alpha</string>
     <string name="animate">Animate</string>
     <string name="basic_map_demo_label">Basic Map</string>
