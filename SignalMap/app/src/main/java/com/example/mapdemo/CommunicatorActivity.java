@@ -41,9 +41,7 @@ public class CommunicatorActivity extends AppCompatActivity {
     private EditText urlText;
     private TextView textView;
     private Button urlButton;
-    private TelephonyManager tm;
-    private Telephony tf;
-    private SignalStrength ss;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,17 +61,6 @@ public class CommunicatorActivity extends AppCompatActivity {
     public void myClickHandler(View view) {
         // Gets the URL from the UI's text field.
         // String stringUrl = urlText.getText().toString();
-        tm =(TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        int n = tm.getNetworkType();
-        System.out.print("Network type is: "+n+"\n");
-        String n1 = tm.getNetworkOperatorName();
-        System.out.print("Network op-r is: "+n1+"\n");
-        TelephonyManager telephonyManager = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
-        // for example value of first element
-        CellInfoLte cellinfogsm = (CellInfoLte)telephonyManager.getAllCellInfo().get(0);
-        CellSignalStrengthLte cellSignalStrengthGsm = cellinfogsm.getCellSignalStrength();
-        int n2=cellSignalStrengthGsm.getDbm();
-        System.out.print("Network signal strength is: "+n2+"\n");
         String stringUrl = "x=59.0001251&y=112.147632";
         stringUrl = baseUrl+stringUrl;
         ConnectivityManager connMgr = (ConnectivityManager)

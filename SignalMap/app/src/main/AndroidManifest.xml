@@ -175,8 +175,10 @@
         <activity
             android:name=".VisibleRegionDemoActivity"
             android:label="@string/visible_region_demo_label" />
-        <activity android:name=".CoordinatesTest"
-            android:label="@string/coordinates_test_title"></activity>
+        <activity
+            android:name=".CoordinatesTest"
+            android:label="@string/coordinates_test_title" />
+        <activity android:name=".SignalStrengthActivity"></activity>
     </application>
 
 </manifest>

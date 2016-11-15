@@ -26,9 +26,13 @@ public final class DemoDetailsList {
     }
 
     public static final DemoDetails[] DEMOS = {
+
             new DemoDetails(R.string.communicator_title,
                     R.string.communicator_description,
                     CommunicatorActivity.class),
+            new DemoDetails(R.string.communicator_title,
+                    R.string.communicator_description,
+                    SignalStrengthActivity.class),
             new DemoDetails(R.string.coordinates_test_title,
                     R.string.coordinates_test_description,
                     CoordinatesTest.class),
