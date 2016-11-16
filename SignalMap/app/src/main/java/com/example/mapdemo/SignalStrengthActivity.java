@@ -3,12 +3,12 @@ package com.example.mapdemo;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.provider.Settings;
 import android.provider.Telephony;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.CellInfo;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
 import android.telephony.CellSignalStrengthGsm;
@@ -17,6 +17,8 @@ import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
+
+import java.util.List;
 
 public class SignalStrengthActivity extends AppCompatActivity {
     final int REQUEST_COARSE_LOCATION = 0;
@@ -93,10 +95,10 @@ public class SignalStrengthActivity extends AppCompatActivity {
         System.out.print("Network op-r is: "+n1+"\n");
         TelephonyManager telephonyManager = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
         // for example value of first element
-        CellInfoGsm cellinfoGsm = (CellInfoGsm)telephonyManager.getAllCellInfo().get(0);
-        CellSignalStrengthGsm cellSignalStrengthGsm= cellinfoGsm.getCellSignalStrength();
-        int n2=cellSignalStrengthGsm.getDbm();
-        System.out.print("Network signal strength is: "+n2+"\n");
+        List<CellInfo> allCellInfo = telephonyManager.getAllCellInfo();
+        //CellSignalStrengthLte cellSignalStrengthLte= cellinfoLte.getCellSignalStrength();
+        //int n2=cellSignalStrengthLte.getDbm();
+        //System.out.print("Network signal strength is: "+n2+"\n");
     }
 
 }
