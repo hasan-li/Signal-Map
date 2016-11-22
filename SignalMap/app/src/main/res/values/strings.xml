@@ -42,6 +42,8 @@
 
     <string name="coordinates_test_title">Coordinates Test</string>
     <string name="coordinates_test_description">Find the location coordinates</string>
+    <string name="hamburg_overlay_title">Hamburg Map Overlay</string>
+    <string name="hamburg_overlay_description">Set the overlay on HH map</string>
 
     <string name="alpha">Alpha</string>
     <string name="animate">Animate</string>
