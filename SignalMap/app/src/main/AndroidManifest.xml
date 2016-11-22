@@ -178,7 +178,10 @@
         <activity
             android:name=".CoordinatesTest"
             android:label="@string/coordinates_test_title" />
-        <activity android:name=".SignalStrengthActivity"></activity>
+        <activity android:name=".SignalStrengthActivity" />
+        <activity
+            android:name=".HamburgOverlay"
+            android:label="HH map Overlay" />
     </application>
 
 </manifest>
