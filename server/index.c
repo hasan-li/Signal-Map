@@ -2,16 +2,11 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdlib.h>
-
-
-#define PATH "generated/index.txt"
-#define FILE_INPUT "This is olololo"
+#include "data.h"
 
 int main (void){
 	printf("Content-type: text/html\n\n");
 	printf("CGI-Program has started\n");
-	size_t writeResult = 0;
-	char fileInput[] = FILE_INPUT;
     
     char m[200];
 	char *data = malloc(200);
@@ -19,20 +14,9 @@ int main (void){
     sscanf(data,"%s", m);
     printf("%s", m);
     
-//    FILE *pGenerated = fopen(PATH, "w+");
-//    
-//	if(pGenerated == NULL){
-//		printf("Could not open file!\n");
-//		return;
-//	}
-//    
-//	writeResult = fwrite(fileInput, strlen(fileInput), 
-//                         strlen(fileInput), pGenerated);
-//	if(writeResult != strlen(fileInput)){
-//		printf("Error while fwrite occured\n");
-//		fclose(pGenerated);
-//		return;
-//	}
-//	fclose(pGenerated);
+    printf("%f", x_n9[1]);
+    
+    
+    
 	return 0;
 }
