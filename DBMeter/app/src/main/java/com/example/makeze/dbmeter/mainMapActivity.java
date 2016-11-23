@@ -12,9 +12,13 @@ import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class mainMapActivity extends AppCompatActivity implements
         GoogleMap.OnMyLocationButtonClickListener,
@@ -22,6 +26,10 @@ public class mainMapActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private GoogleMap mMap;
+    LocationCoordinates locationCoordinates;
+    double latitude;
+    double longitude;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +40,8 @@ public class mainMapActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        locationCoordinates = new LocationCoordinates(this);
+
         Button mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
         mainMenuSetup(mainMenuButton);
     }
@@ -39,6 +49,9 @@ public class mainMapActivity extends AppCompatActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        LatLng Hamburg = new LatLng(53.5584902, 9.7877408);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(Hamburg));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(5));
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
     }
@@ -60,9 +73,15 @@ public class mainMapActivity extends AppCompatActivity implements
             Intent signalStrengthIntent = new Intent(getApplicationContext(),SignalStrengthActivity.class);
             startActivity(signalStrengthIntent);
         } else if (item.getTitle() == "Where am I") {
+            latitude = locationCoordinates.getLatitude();
+            longitude = locationCoordinates.getLongitude();
+            String currentCoordinates = "LAT:"+latitude+" LNG:"+longitude;
             Toast.makeText(this, "Fetching coordinates", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, currentCoordinates, Toast.LENGTH_LONG).show();
         } else if (item.getTitle() == "Show good signal") {
             Toast.makeText(this, "Generating overlay", Toast.LENGTH_SHORT).show();
+            Intent HamburgOverlayIntent = new Intent(getApplicationContext(),HamburgOverlay.class);
+            startActivity(HamburgOverlayIntent);
         } else {
             return false;
         }
