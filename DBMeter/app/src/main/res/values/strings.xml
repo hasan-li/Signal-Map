@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">DBMeter</string>
+    <string name="title_activity_main_map">DBMeter</string>
+    <string name="mainButtonText">Settings</string>
+    <string name="location_permission_denied">Settings Menu</string>
+    <string name="permission_required_toast">Settings Menu</string>
+    <string name="permission_rationale_location">Settings Menu</string>
+    <string name="transparency">Transparency</string>
+    <string name="mainMenuHeader">Main Menu</string>>
+</resources>
