@@ -88,7 +88,7 @@ public class HamburgOverlay extends AppCompatActivity implements
         mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
                 .image(overlayImage.get(0))
                 .positionFromBounds(bounds)
-                .transparency(0.2f));
+                .transparency(0.1f));
 
         mTransparencyBar.setOnSeekBarChangeListener(this);
     }
