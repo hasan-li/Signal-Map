@@ -20,6 +20,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class mainMapActivity extends AppCompatActivity implements
         GoogleMap.OnMyLocationButtonClickListener,
         OnMapReadyCallback,
@@ -69,9 +72,14 @@ public class mainMapActivity extends AppCompatActivity implements
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getTitle() == "Signal Stength") {
-            //Toast.makeText(this, "Fetching signal strength", Toast.LENGTH_SHORT).show();
-            Intent signalStrengthIntent = new Intent(getApplicationContext(),SignalStrengthActivity.class);
-            startActivity(signalStrengthIntent);
+            new Timer().scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    //Toast.makeText(this, "Fetching signal strength", Toast.LENGTH_SHORT).show();
+                    Intent signalStrengthIntent = new Intent(getApplicationContext(),SignalStrengthActivity.class);
+                    startActivity(signalStrengthIntent);
+                }
+            }, 0, 5000);//put here time 1000 milliseconds=1 second
         } else if (item.getTitle() == "Where am I") {
             latitude = locationCoordinates.getLatitude();
             longitude = locationCoordinates.getLongitude();

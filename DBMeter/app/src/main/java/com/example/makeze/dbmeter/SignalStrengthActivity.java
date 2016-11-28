@@ -51,8 +51,8 @@ public class SignalStrengthActivity extends AppCompatActivity {
         // for example value of first element
         List<CellInfo> allCellInfo = telephonyManager.getAllCellInfo();
         Toast.makeText(this, "Fetching signal strength: "+allCellInfo.get(0).toString(), Toast.LENGTH_LONG).show();
-        Toast.makeText(this, "Fetching signal strength: "+allCellInfo.get(1).toString(), Toast.LENGTH_LONG).show();
-        Toast.makeText(this, "Fetching signal strength: "+allCellInfo.get(2).toString(), Toast.LENGTH_LONG).show();
+        System.out.print(allCellInfo.get(0));
+
         return allCellInfo.get(0).toString();
     }
 
