@@ -15,7 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class CoordinatesTest extends AppCompatActivity{
+public class CoordinatesTest extends AppCompatActivity {
 
 
     Button btnGetLocation;
@@ -31,10 +31,10 @@ public class CoordinatesTest extends AppCompatActivity{
         editLocation = (EditText) findViewById(R.id.editTextLocation);
         editLocation.setText("Click the button below to" + " see the coordinates (latitude & longitude)");
 
-        locationCoordinates=new LocationCoordinates(CoordinatesTest.this);
+        locationCoordinates = new LocationCoordinates(CoordinatesTest.this);
         btnGetLocation = (Button) findViewById(R.id.btnLocation);
-        btnGetLocation.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
+        btnGetLocation.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
                 locate();
             }
         });
@@ -42,23 +42,21 @@ public class CoordinatesTest extends AppCompatActivity{
     }
 
 
-    public void locate(){
-        if(locationCoordinates.canGetLocation()) {
+    public void locate() {
+        if (locationCoordinates.canGetLocation()) {
             // Toast.makeText(this, "LAT " + locationCoordinates.getLatitude() + " ,LNG " + locationCoordinates.getLongitude(), Toast.LENGTH_SHORT).show();
             //Log.i(TAG, "LAT " + locationCoordinates.getLatitude() + " LNG " + locationCoordinates.getLongitude());
 
             editLocation.setText("");
             //Toast.makeText(getBaseContext(),"Location changed : Lat: " +location.getLatitude()+ " Lng: " + location.getLongitude(),Toast.LENGTH_SHORT).show();
 
-            String latitude = " Latitude: " +locationCoordinates.getLatitude();
-            String longitude = " Longitude: " +locationCoordinates.getLongitude();
+            String latitude = " Latitude: " + locationCoordinates.getLatitude();
+            String longitude = " Longitude: " + locationCoordinates.getLongitude();
 
-            String s = latitude+"\n"+longitude;
+            String s = latitude + "\n" + longitude;
             editLocation.setText(s);
-        }
-
-        else{
-            Log.i(TAG,"No location found");
+        } else {
+            Log.i(TAG, "No location found");
             Toast.makeText(this, "No location found", Toast.LENGTH_LONG).show();
         }
     }

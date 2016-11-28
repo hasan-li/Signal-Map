@@ -13,6 +13,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
@@ -24,6 +25,11 @@ public class HamburgOverlay extends AppCompatActivity implements
         SeekBar.OnSeekBarChangeListener, OnMapReadyCallback, GoogleMap.OnGroundOverlayClickListener {
 
     private GoogleMap mMap;
+    //private static final LatLng SOUTH_WEST = new LatLng(53.51303, 9.89507); //bottom right corner of the image
+    //private static final LatLng NORTH_EAST = new LatLng(53.59368, 10.12336); //top left corner of the image
+
+    private static final LatLng SOUTH_WEST = new LatLng(53.45215, 9.66556); //bottom right corner of the image
+    private static final LatLng NORTH_EAST = new LatLng(53.67189, 10.2753); //top left corner of the image
 
     LocationCoordinates locationCoordinates;
 
@@ -65,21 +71,24 @@ public class HamburgOverlay extends AppCompatActivity implements
         longitude = locationCoordinates.getLongitude();
 
         overlayImage.clear();
-        overlayImage.add(BitmapDescriptorFactory.fromResource(R.drawable.hhimg));
+        overlayImage.add(BitmapDescriptorFactory.fromResource(R.drawable.bighh));
 
-        //mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         LatLng currentLocation = new LatLng(latitude, longitude);
         mMap.addMarker(new MarkerOptions().position(currentLocation).title("LAT:" + latitude + " LNG:" + longitude));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
         mMap.setBuildingsEnabled(true);
-        mMap.setMaxZoomPreference(15);
-        mMap.setMinZoomPreference(10);
+        mMap.setMaxZoomPreference(16);
+        mMap.setMinZoomPreference(9);
+
+
+        LatLngBounds bounds = new LatLngBounds(SOUTH_WEST,NORTH_EAST);
 
         mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
                 .image(overlayImage.get(0))
-                .position(currentLocation, 600f, 500f)
-                .transparency(0.1f));
+                .positionFromBounds(bounds)
+                .transparency(0.2f));
 
         mTransparencyBar.setOnSeekBarChangeListener(this);
     }
