@@ -29,8 +29,10 @@ public class HamburgOverlay extends AppCompatActivity implements
         SeekBar.OnSeekBarChangeListener, OnMapReadyCallback, GoogleMap.OnGroundOverlayClickListener {
 
     private GoogleMap mMap;
-    //private static final LatLng SOUTH_WEST = new LatLng(53.51303, 9.89507); //bottom right corner of the image
-    //private static final LatLng NORTH_EAST = new LatLng(53.59368, 10.12336); //top left corner of the image
+    //hhOne
+    private static final LatLng SW1 = new LatLng(53.51313, 9.89507); //bottom right corner of the image
+    private static final LatLng NE2 = new LatLng(53.59392, 10.12355); //top left corner of the image
+
     private static final LatLng SOUTH_WEST = new LatLng(53.45215, 9.66556); //bottom right corner of the image
     private static final LatLng NORTH_EAST = new LatLng(53.67189, 10.2753); //top left corner of the image
 
