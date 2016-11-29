@@ -2,6 +2,7 @@ package com.example.makeze.dbmeter;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.SeekBar;
 import android.widget.Toast;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -17,18 +18,39 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class mainMapActivity extends AppCompatActivity implements
         GoogleMap.OnMyLocationButtonClickListener,
         OnMapReadyCallback,
-        ActivityCompat.OnRequestPermissionsResultCallback {
+        ActivityCompat.OnRequestPermissionsResultCallback,
+        SeekBar.OnSeekBarChangeListener,
+        GoogleMap.OnGroundOverlayClickListener{
+
 
     private GoogleMap mMap;
+
+    private static final LatLng SOUTH_WEST = new LatLng(53.45215, 9.66556); //bottom right corner of the image
+    private static final LatLng NORTH_EAST = new LatLng(53.67189, 10.2753); //top left corner of the image
+
+    private final List<BitmapDescriptor> overlayImage = new ArrayList<BitmapDescriptor>();
+    private GroundOverlay mGroundOverlay;
+    //private ArrayList<LatLng> cellNetworkMap = new ArrayList<LatLng>();
+
+    private static final int TRANSPARENCY_MAX = 100;
+    private SeekBar mTransparencyBar;
+
     LocationCoordinates locationCoordinates;
     double latitude;
     double longitude;
@@ -38,25 +60,56 @@ public class mainMapActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_map);
+
+        Button mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
+        mainMenuSetup(mainMenuButton);
+
+        locationCoordinates = new LocationCoordinates(mainMapActivity.this);
+
+        mTransparencyBar = (SeekBar) findViewById(R.id.transparencySeekBar);
+        mTransparencyBar.setMax(TRANSPARENCY_MAX);
+        mTransparencyBar.setProgress(0);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        locationCoordinates = new LocationCoordinates(this);
-
-        Button mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
-        mainMenuSetup(mainMenuButton);
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng Hamburg = new LatLng(53.5584902, 9.7877408);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(Hamburg));
+
+        mMap.setOnGroundOverlayClickListener(this);
+
+        latitude = locationCoordinates.getLatitude();
+        longitude = locationCoordinates.getLongitude();
+
+        overlayImage.clear();
+        overlayImage.add(BitmapDescriptorFactory.fromResource(R.drawable.bighh));
+
+        // mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        LatLng currentLocation = new LatLng(latitude, longitude);
+        mMap.addMarker(new MarkerOptions().position(currentLocation).title("LAT:" + latitude + " LNG:" + longitude));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(5));
+        mMap.setBuildingsEnabled(true);
+        mMap.setMaxZoomPreference(16);
+        //mMap.setMinZoomPreference(9);
+
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
+
+
+        LatLngBounds bounds = new LatLngBounds(SOUTH_WEST,NORTH_EAST);
+
+        mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
+                .image(overlayImage.get(0))
+                .positionFromBounds(bounds)
+                .transparency(0.2f));
+
+        mTransparencyBar.setOnSeekBarChangeListener(this);
     }
 
     // stuff for main menu goes here
@@ -171,4 +224,27 @@ public class mainMapActivity extends AppCompatActivity implements
                 .newInstance(true).show(getSupportFragmentManager(), "dialog");
     }
 
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (mGroundOverlay != null) {
+            mGroundOverlay.setTransparency((float) progress / (float) TRANSPARENCY_MAX);
+        }
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onGroundOverlayClick(GroundOverlay groundOverlay) {
+        mGroundOverlay.setTransparency(0.5f - mGroundOverlay.getTransparency());
+
+    }
 }

@@ -2,7 +2,11 @@ package com.example.makeze.dbmeter;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.RadioButton;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,19 +31,22 @@ public class HamburgOverlay extends AppCompatActivity implements
     private GoogleMap mMap;
     //private static final LatLng SOUTH_WEST = new LatLng(53.51303, 9.89507); //bottom right corner of the image
     //private static final LatLng NORTH_EAST = new LatLng(53.59368, 10.12336); //top left corner of the image
-
     private static final LatLng SOUTH_WEST = new LatLng(53.45215, 9.66556); //bottom right corner of the image
     private static final LatLng NORTH_EAST = new LatLng(53.67189, 10.2753); //top left corner of the image
 
-    LocationCoordinates locationCoordinates;
-
     private final List<BitmapDescriptor> overlayImage = new ArrayList<BitmapDescriptor>();
-    public GroundOverlay mGroundOverlay;
+    private GroundOverlay mGroundOverlay;
+    //private ArrayList<LatLng> cellNetworkMap = new ArrayList<LatLng>();
 
     private static final int TRANSPARENCY_MAX = 100;
     private SeekBar mTransparencyBar;
     double latitude;
     double longitude;
+
+    LocationCoordinates locationCoordinates;
+
+    private Thread loadMaps;
+    private Thread loadCellNetwork;
 
 
     @Override
@@ -73,14 +80,15 @@ public class HamburgOverlay extends AppCompatActivity implements
         overlayImage.clear();
         overlayImage.add(BitmapDescriptorFactory.fromResource(R.drawable.bighh));
 
-        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+       // mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         LatLng currentLocation = new LatLng(latitude, longitude);
         mMap.addMarker(new MarkerOptions().position(currentLocation).title("LAT:" + latitude + " LNG:" + longitude));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
         mMap.setBuildingsEnabled(true);
         mMap.setMaxZoomPreference(16);
-        mMap.setMinZoomPreference(9);
+        //mMap.setMinZoomPreference(9);
 
 
         LatLngBounds bounds = new LatLngBounds(SOUTH_WEST,NORTH_EAST);
@@ -88,7 +96,7 @@ public class HamburgOverlay extends AppCompatActivity implements
         mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
                 .image(overlayImage.get(0))
                 .positionFromBounds(bounds)
-                .transparency(0.1f));
+                .transparency(0.2f));
 
         mTransparencyBar.setOnSeekBarChangeListener(this);
     }
@@ -104,19 +112,24 @@ public class HamburgOverlay extends AppCompatActivity implements
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
-
     }
 
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-
     }
 
 
     @Override
     public void onGroundOverlayClick(GroundOverlay groundOverlay) {
         mGroundOverlay.setTransparency(0.5f - mGroundOverlay.getTransparency());
+
+    }
+
+    public void toggleMap(View view) {
+        if (mGroundOverlay != null) {
+            mGroundOverlay.setClickable(((CheckBox) view).isChecked());
+        }
 
     }
 
