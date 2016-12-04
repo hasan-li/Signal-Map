@@ -38,7 +38,6 @@ public class mainMapActivity extends AppCompatActivity implements
         SeekBar.OnSeekBarChangeListener,
         GoogleMap.OnGroundOverlayClickListener{
 
-
     private GoogleMap mMap;
 
     //hhOne
@@ -145,14 +144,9 @@ public class mainMapActivity extends AppCompatActivity implements
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getTitle() == "Signal Stength") {
-            new Timer().scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
                     //Toast.makeText(this, "Fetching signal strength", Toast.LENGTH_SHORT).show();
-                    Intent signalStrengthIntent = new Intent(getApplicationContext(),SignalStrengthActivity.class);
-                    startActivity(signalStrengthIntent);
-                }
-            }, 0, 5000);//put here time 1000 milliseconds=1 second
+            Intent signalStrengthIntent = new Intent(getApplicationContext(),SignalStrengthActivity.class);
+            startActivity(signalStrengthIntent);
         } else if (item.getTitle() == "Where am I") {
             latitude = locationCoordinates.getLatitude();
             longitude = locationCoordinates.getLongitude();
