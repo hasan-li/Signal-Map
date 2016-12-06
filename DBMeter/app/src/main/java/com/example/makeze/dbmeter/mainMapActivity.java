@@ -63,7 +63,6 @@ public class mainMapActivity extends AppCompatActivity implements
     double latitude;
     double longitude;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

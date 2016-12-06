@@ -23,7 +23,7 @@ public class SignalStrengthActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signal_strength);
-        TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager tm = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
 
         mPhoneStateListener = new MyPhoneStateListener();
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -53,9 +53,8 @@ public class SignalStrengthActivity extends AppCompatActivity {
             super.onSignalStrengthsChanged(signalStrength);
             mSignalStrength = signalStrength.getGsmSignalStrength();
             mSignalStrength = signalStrength.getCdmaDbm();
-            mSignalStrength = (2 * mSignalStrength) - 113; // -> dBm
-            System.out.println("!!!!"+mSignalStrength);
-            //Toast.makeText(this, "Fetching signal strength", Toast.LENGTH_SHORT).show();
+            mSignalStrength = ((2 * mSignalStrength) - 113); // -> dBm
         }
     }
+
 }

@@ -20,8 +20,11 @@ import java.net.URL;
 *  The purpouse of this service is to communicate with a server every N minutes and provide it with new signal measurement data
 * */
 
-public class CommunicationService extends Service {
-    public CommunicationService() {
+public class UpdateServer extends Service {
+
+    String baseUrl = "http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?"; // http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?x=-XXX.XXXXXX&y=YYY.YYYYYY
+
+    public UpdateServer() {
     }
 
     @Override
