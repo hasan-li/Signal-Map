@@ -3,7 +3,42 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include "data.h"
+
+
+void editFile(int number) {
+    FILE *fp;
+    
+    char buffer[200]; // assuming POSIX
+    sprintf(buffer, "data/%d.txt", number);
+    
+    fp = fopen(buffer, "w+");
+    
+    fprintf(fp, "This is testing...\n");
+    fputs("This is testing for fputs...\n", fp);
+    fclose(fp);
+    
+}
+
+
+
+void getData(int number) {
+    FILE *fp;
+    char buffer[255];
+    
+    sprintf(buffer, "data/%d.txt", number);
+    fp = fopen(buffer, "r");
+    fscanf(fp, "%s", buffer);
+    printf("1 : %s\n", buffer );
+
+    fgets(buffer, 255, (FILE*)fp);
+    printf("2: %s\n", buffer );
+
+    
+    fgets(buffer, 255, (FILE*)fp);
+    printf("3: %s\n", buffer );
+    fclose(fp);
+}
+
 
 
 int main (void){
@@ -23,6 +58,12 @@ int main (void){
     char *token = strtok(query, "&");
     char *queryData[3];
     
+    
+    
+//    displaying random image
+    printf("<img src='http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/voronoi-map-goal-distorted.png'><br />");
+    
+    
 
 //    getting values in query inside queryData
 //    * queryData[0] - x
@@ -40,8 +81,8 @@ int main (void){
             queryData[i] = queryData[i] + 2;
         }
         printf("%s <br />", queryData[i]);
-        
     }
+    
     
     
     
@@ -55,6 +96,13 @@ int main (void){
     printf("Integral part = %lf\n", x_decimal);
     printf("Fraction Part = %lf \n", x_mantissa);
     
+    
+    
+    x = (int)x;
+    
+    
+//    editFile(x);
+    getData(x);
     
     
 	return 0;
