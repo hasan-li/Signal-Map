@@ -28,8 +28,7 @@ public class SignalStrengthActivity extends AppCompatActivity {
         mPhoneStateListener = new MyPhoneStateListener();
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-        showStrength();
-        Toast.makeText(this, "Fetching signal strength: "+mSignalStrength, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Fetching signal strength: "+showStrength(), Toast.LENGTH_SHORT).show();
     }
 
     public void showStrength() {
@@ -43,6 +42,7 @@ public class SignalStrengthActivity extends AppCompatActivity {
         } else {
             Log.i("PERMISSION LOG", "Telephony permission been granted.");
             //showSignalStrength();
+
         }
     }
 
@@ -54,6 +54,7 @@ public class SignalStrengthActivity extends AppCompatActivity {
             mSignalStrength = signalStrength.getGsmSignalStrength();
             mSignalStrength = signalStrength.getCdmaDbm();
             mSignalStrength = ((2 * mSignalStrength) - 113); // -> dBm
+            System.out.println("!!!!"+mSignalStrength);
         }
     }
 

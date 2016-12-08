@@ -1,6 +1,5 @@
 package com.example.makeze.dbmeter;
 
-import android.*;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;

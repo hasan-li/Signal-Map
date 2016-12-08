@@ -28,8 +28,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class mainMapActivity extends AppCompatActivity implements
         GoogleMap.OnMyLocationButtonClickListener,
@@ -66,6 +64,7 @@ public class mainMapActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // create a folder for storage
         setContentView(R.layout.activity_main_map);
 
         Button mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
@@ -81,6 +80,10 @@ public class mainMapActivity extends AppCompatActivity implements
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        // fetchFileTree intent starter
+        //Intent intent = new Intent(this, fetchFileTree.class);
+        //startActivity(intent);
     }
 
     @Override

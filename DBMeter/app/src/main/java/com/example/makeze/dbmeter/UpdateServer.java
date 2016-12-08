@@ -2,10 +2,13 @@ package com.example.makeze.dbmeter;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -39,7 +42,7 @@ public class UpdateServer extends Service {
         // separate thread because the service normally runs in the process's
         // main thread, which we don't want to block.  We also make it
         // background priority so CPU-intensive work will not disrupt our UI.
-        HandlerThread thread = new HandlerThread("ServiceStartArguments");
+        HandlerThread thread = new HandlerThread("UpdateServer");
         thread.start();
     }
 
@@ -66,19 +69,47 @@ public class UpdateServer extends Service {
         }
         // onPostExecute displays the results of the AsyncTask.
         @Override
-        protected void onPostExecute(String result) {
-            //textView.setText(result);
+        protected void onPostExecute(String is) {
+
+            //Bitmap bitmap = BitmapFactory.decodeStream(is);
+            //ImageView imageView = (ImageView) findViewById(R.id.image_view);
+            //imageView.setImageBitmap(bitmap);
         }
     }
 
-
     private String downloadUrl(String myurl) throws IOException {
         InputStream is = null;
+        URL imageUrl = null;
+        String imageString = null;
         int len = 500;
 
         try {
             URL url = new URL(myurl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(10000 /* milliseconds */);
+            conn.setConnectTimeout(15000 /* milliseconds */);
+            conn.setRequestMethod("GET");
+            conn.setDoInput(true);
+            // Starts the query
+            conn.connect();
+            int response = conn.getResponseCode();
+            Log.d("DEBUG", "The response is: " + response);
+            is = conn.getInputStream();
+
+            // Convert the InputStream into a string
+            imageString = readIt(is, len);
+            //return contentAsString;
+
+            // Makes sure that the InputStream is closed after the app is
+            // finished using it.
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+        }
+        try {
+            imageUrl = new URL(imageString);
+            HttpURLConnection conn = (HttpURLConnection) imageUrl.openConnection();
             conn.setReadTimeout(10000 /* milliseconds */);
             conn.setConnectTimeout(15000 /* milliseconds */);
             conn.setRequestMethod("GET");
