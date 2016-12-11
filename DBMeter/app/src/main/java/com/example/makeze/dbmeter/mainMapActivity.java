@@ -1,6 +1,7 @@
 package com.example.makeze.dbmeter;
 
 import android.content.Intent;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.SeekBar;
 import android.widget.Toast;
@@ -37,6 +38,9 @@ public class mainMapActivity extends AppCompatActivity implements
         GoogleMap.OnGroundOverlayClickListener{
 
     private GoogleMap mMap;
+    LocationCoordinates locationCoordinates;
+    double latitude;
+    double longitude;
 
     //hhOne
     private static final LatLng SW1 = new LatLng(53.51313, 9.89507); //bottom right corner of the image
@@ -46,6 +50,7 @@ public class mainMapActivity extends AppCompatActivity implements
     private static final LatLng SW2 = new LatLng(53.59413, 9.89593); //bottom right corner of the image
     private static final LatLng NE2= new LatLng(53.68572, 10.12321); //top left corner of the image
 
+    //bighh
     private static final LatLng SOUTH_WEST = new LatLng(53.45215, 9.66556); //bottom right corner of the image
     private static final LatLng NORTH_EAST = new LatLng(53.67189, 10.2753); //top left corner of the image
 
@@ -56,10 +61,6 @@ public class mainMapActivity extends AppCompatActivity implements
 
     private static final int TRANSPARENCY_MAX = 100;
     private SeekBar mTransparencyBar;
-
-    LocationCoordinates locationCoordinates;
-    double latitude;
-    double longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +82,9 @@ public class mainMapActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // fetchFileTree intent starter
-        //Intent intent = new Intent(this, fetchFileTree.class);
-        //startActivity(intent);
+        //fetchFileTree intent starter
+        Intent intent = new Intent(this, fetchFileTree.class);
+        startActivity(intent);
     }
 
     @Override
@@ -109,21 +110,11 @@ public class mainMapActivity extends AppCompatActivity implements
         enableMyLocation();
 
         overlayImages.clear();
-        overlayImages.add(BitmapDescriptorFactory.fromResource(R.drawable.hh_one));
+        overlayImages.add(BitmapDescriptorFactory.fromPath(Environment.getExternalStorageDirectory()+"/DBMeter/52.50_9.45_53.49_10.18.png"));
         LatLngBounds bound1 = new LatLngBounds(SW1,NE1);
         mGroundOverlay1 = mMap.addGroundOverlay(new GroundOverlayOptions()
                 .image(overlayImages.get(0))
                 .positionFromBounds(bound1)
-                .transparency(0.2f));
-
-
-        overlayImages.clear();
-        overlayImages.add(BitmapDescriptorFactory.fromResource(R.drawable.hh_two));
-        LatLngBounds bound2 = new LatLngBounds(SW2,NE2);
-
-        mGroundOverlay2 = mMap.addGroundOverlay(new GroundOverlayOptions()
-                .image(overlayImages.get(0))
-                .positionFromBounds(bound2)
                 .transparency(0.2f));
 
         mTransparencyBar.setOnSeekBarChangeListener(this);
@@ -246,10 +237,6 @@ public class mainMapActivity extends AppCompatActivity implements
             mGroundOverlay1.setTransparency((float) progress / (float) TRANSPARENCY_MAX);
         }
 
-        if(mGroundOverlay2 != null){
-            mGroundOverlay2.setTransparency((float) progress / (float) TRANSPARENCY_MAX);
-        }
-
     }
 
     @Override
@@ -264,8 +251,6 @@ public class mainMapActivity extends AppCompatActivity implements
 
     @Override
     public void onGroundOverlayClick(GroundOverlay groundOverlay) {
-        //mGroundOverlay1.setTransparency(0.5f - mGroundOverlay1.getTransparency());
-        //mGroundOverlay2.setTransparency(0.5f - mGroundOverlay2.getTransparency());
     }
 
 
