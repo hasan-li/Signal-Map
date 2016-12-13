@@ -49,6 +49,5 @@ public class SignalStrengthService extends Service {
 
     public int getSignalStrengthDB(){
         return ((2 * mSignalStrength) - 113);
-
     }
 }

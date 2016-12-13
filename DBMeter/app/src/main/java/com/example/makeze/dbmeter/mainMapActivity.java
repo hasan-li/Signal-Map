@@ -32,6 +32,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import android.os.Handler;
@@ -71,9 +72,13 @@ public class mainMapActivity extends AppCompatActivity implements
 
     //signal strength vars
 
-    private SignalStrengthService signalService;
+    //private SignalStrengthService signalService;
+    //public int value = 0;
+
+    //server update vars
+
+    private UpdateServerService serverUpdate;
     private boolean signalBound = false;
-    public int value = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,27 +105,31 @@ public class mainMapActivity extends AppCompatActivity implements
         //fetchFileTree intent starter
         Intent intent = new Intent(this, FetchFileTree.class);
         startActivity(intent);
-        printerFinter();
+        updateServerr();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        Intent intent = new Intent(this, SignalStrengthService.class);
-        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        Intent serverUpdateIntent = new Intent(this, UpdateServerService.class);
+        bindService(serverUpdateIntent, connectionToServerUpdateIntent, Context.BIND_AUTO_CREATE);
     }
 
 
-    private void printerFinter(){
+    private void updateServerr(){
         final Handler handler = new Handler();
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if(signalService!=null){
-                    value = signalService.getSignalStrengthDB();
+                if(serverUpdate!=null){
+                    try {
+                        serverUpdate.updateServer();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-                System.out.println("Check this out: "+value);
-                handler.postDelayed(this,5000);
+                System.out.println("Updating server! MAKEZE");
+                handler.postDelayed(this,10000);
             }
 
         });
@@ -304,12 +313,12 @@ public class mainMapActivity extends AppCompatActivity implements
         }
     }
 
-    private ServiceConnection connection = new ServiceConnection() {
+    private ServiceConnection connectionToServerUpdateIntent = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder binder) {
-            SignalStrengthService.SignalStrengthBinder signalBinder =
-                    (SignalStrengthService.SignalStrengthBinder) binder;
-            signalService = signalBinder.getSignal();
+            UpdateServerService.UpdateServerBinder updateServerBinder =
+                    (UpdateServerService.UpdateServerBinder) binder;
+            serverUpdate = updateServerBinder.updateTrigger();
             signalBound = true;
         }
         @Override
