@@ -1,8 +1,13 @@
 package com.example.makeze.dbmeter;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Environment;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.SeekBar;
 import android.widget.Toast;
 import android.content.pm.PackageManager;
@@ -29,14 +34,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+import android.os.Handler;
 
 public class mainMapActivity extends AppCompatActivity implements
         GoogleMap.OnMyLocationButtonClickListener,
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
         SeekBar.OnSeekBarChangeListener,
-        GoogleMap.OnGroundOverlayClickListener{
+        GoogleMap.OnGroundOverlayClickListener {
 
+    private static final int COARSE_PERMISSION_REQUEST_CODE = 2;
     private GoogleMap mMap;
     LocationCoordinates locationCoordinates;
     double latitude;
@@ -48,13 +55,13 @@ public class mainMapActivity extends AppCompatActivity implements
 
     //hhTwo
     private static final LatLng SW2 = new LatLng(53.59413, 9.89593); //bottom right corner of the image
-    private static final LatLng NE2= new LatLng(53.68572, 10.12321); //top left corner of the image
+    private static final LatLng NE2 = new LatLng(53.68572, 10.12321); //top left corner of the image
 
     //bighh
     private static final LatLng SOUTH_WEST = new LatLng(53.45215, 9.66556); //bottom right corner of the image
     private static final LatLng NORTH_EAST = new LatLng(53.67189, 10.2753); //top left corner of the image
 
-    private BitmapDescriptor overlayImages;
+    private final List<BitmapDescriptor> overlayImages = new ArrayList<BitmapDescriptor>();
     private GroundOverlay mGroundOverlay1;
     private GroundOverlay mGroundOverlay2;
     //private ArrayList<LatLng> cellNetworkMap = new ArrayList<LatLng>();
@@ -62,11 +69,19 @@ public class mainMapActivity extends AppCompatActivity implements
     private static final int TRANSPARENCY_MAX = 100;
     private SeekBar mTransparencyBar;
 
+    //signal strength vars
+
+    private SignalStrengthService signalService;
+    private boolean signalBound = false;
+    public int value = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         // create a folder for storage
         setContentView(R.layout.activity_main_map);
+        checkPermission();
 
         Button mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
         mainMenuSetup(mainMenuButton);
@@ -82,10 +97,35 @@ public class mainMapActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //FetchFileTree intent starter
-        //Intent intent = new Intent(this, FetchFileTree.class);
-        //startActivity(intent);
+        //fetchFileTree intent starter
+        Intent intent = new Intent(this, FetchFileTree.class);
+        startActivity(intent);
+        printerFinter();
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = new Intent(this, SignalStrengthService.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+
+    private void printerFinter(){
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if(signalService!=null){
+                    value = signalService.getSignalStrengthDB();
+                }
+                System.out.println("Check this out: "+value);
+                handler.postDelayed(this,5000);
+            }
+
+        });
+    }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -109,16 +149,16 @@ public class mainMapActivity extends AppCompatActivity implements
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
 
-        overlayImages = BitmapDescriptorFactory.fromPath(Environment.getExternalStorageDirectory()+"/DBMeter/53.40_9.95_53.47_10.01.png");
+        overlayImages.clear();
+        overlayImages.add(BitmapDescriptorFactory.fromResource(R.drawable.hh_one));
         LatLngBounds bound1 = new LatLngBounds(SW1,NE1);
         mGroundOverlay1 = mMap.addGroundOverlay(new GroundOverlayOptions()
-                .image(overlayImages)
+                .image(overlayImages.get(0))
                 .positionFromBounds(bound1)
                 .transparency(0.2f));
 
         mTransparencyBar.setOnSeekBarChangeListener(this);
         mMap.setContentDescription("Google Map with ground overlay.");
-
     }
 
 
@@ -136,8 +176,7 @@ public class mainMapActivity extends AppCompatActivity implements
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getTitle() == "Signal Stength") {
-                    //Toast.makeText(this, "Fetching signal strength", Toast.LENGTH_SHORT).show();
-            Intent signalStrengthIntent = new Intent(getApplicationContext(),SignalStrengthActivity.class);
+            Intent signalStrengthIntent = new Intent(getApplicationContext(),HamburgOverlay.class);
             startActivity(signalStrengthIntent);
         } else if (item.getTitle() == "Where am I") {
             latitude = locationCoordinates.getLatitude();
@@ -252,5 +291,31 @@ public class mainMapActivity extends AppCompatActivity implements
     public void onGroundOverlayClick(GroundOverlay groundOverlay) {
     }
 
+    public void checkPermission() {
+        Log.i("PERMISSION LOG", "Requesting telephony permissions.");
+
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, COARSE_PERMISSION_REQUEST_CODE,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION, true);
+        } else {
+            Log.i("PERMISSION LOG", "Telephony permission been granted.");
+        }
+    }
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder binder) {
+            SignalStrengthService.SignalStrengthBinder signalBinder =
+                    (SignalStrengthService.SignalStrengthBinder) binder;
+            signalService = signalBinder.getSignal();
+            signalBound = true;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            signalBound = false;
+        }
+    };
 
 }
