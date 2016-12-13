@@ -54,7 +54,7 @@ public class mainMapActivity extends AppCompatActivity implements
     private static final LatLng SOUTH_WEST = new LatLng(53.45215, 9.66556); //bottom right corner of the image
     private static final LatLng NORTH_EAST = new LatLng(53.67189, 10.2753); //top left corner of the image
 
-    private final List<BitmapDescriptor> overlayImages = new ArrayList<BitmapDescriptor>();
+    private BitmapDescriptor overlayImages;
     private GroundOverlay mGroundOverlay1;
     private GroundOverlay mGroundOverlay2;
     //private ArrayList<LatLng> cellNetworkMap = new ArrayList<LatLng>();
@@ -82,9 +82,9 @@ public class mainMapActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //fetchFileTree intent starter
-        Intent intent = new Intent(this, fetchFileTree.class);
-        startActivity(intent);
+        //FetchFileTree intent starter
+        //Intent intent = new Intent(this, FetchFileTree.class);
+        //startActivity(intent);
     }
 
     @Override
@@ -109,11 +109,10 @@ public class mainMapActivity extends AppCompatActivity implements
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
 
-        overlayImages.clear();
-        overlayImages.add(BitmapDescriptorFactory.fromPath(Environment.getExternalStorageDirectory()+"/DBMeter/52.50_9.45_53.49_10.18.png"));
+        overlayImages = BitmapDescriptorFactory.fromPath(Environment.getExternalStorageDirectory()+"/DBMeter/53.40_9.95_53.47_10.01.png");
         LatLngBounds bound1 = new LatLngBounds(SW1,NE1);
         mGroundOverlay1 = mMap.addGroundOverlay(new GroundOverlayOptions()
-                .image(overlayImages.get(0))
+                .image(overlayImages)
                 .positionFromBounds(bound1)
                 .transparency(0.2f));
 

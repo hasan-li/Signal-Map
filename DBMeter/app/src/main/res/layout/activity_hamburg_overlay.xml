@@ -27,27 +27,6 @@ android:orientation="vertical">
         android:layout_toEndOf="@+id/transparency_text"
         android:layout_toRightOf="@+id/transparency_text" />
 
-    <TextView
-        android:id="@+id/ToogleMap_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="21dp"
-        android:layout_gravity="center_vertical"
-        android:text="@string/toogleMap" />
-
-    <CheckBox
-        android:id="@+id/cellMap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/transparencySeekBar"
-        android:layout_toEndOf="@+id/ToogleMap_text"
-        android:layout_toRightOf="@+id/ToogleMap_text"
-        android:layout_marginTop="16dp"
-        android:checked="false"
-        android:onClick="toggleMap"/>
-
-
-
 </RelativeLayout>
 
     <fragment
