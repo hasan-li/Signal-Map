@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-public class FetchFileTree extends AppCompatActivity {
+public class fetchFileTree extends AppCompatActivity {
 
     private int READ_EXTERNAL_STORAGE_CODE = 5;
     LocationCoordinates locationCoordinates;
@@ -28,7 +28,7 @@ public class FetchFileTree extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fetch_file_tree);
 
-        locationCoordinates = new LocationCoordinates(FetchFileTree.this);
+        locationCoordinates = new LocationCoordinates(fetchFileTree.this);
         latitude = locationCoordinates.getLatitude();
         longitude = locationCoordinates.getLongitude();
 
