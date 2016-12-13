@@ -1,7 +1,10 @@
 package com.example.makeze.dbmeter;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
@@ -36,8 +39,15 @@ public class UpdateServerService extends Service {
 
     @Override
     public void onCreate(){
-        new DownloadWebpageTask().execute();
-        System.out.println("MAKEZE! Server update was called!");
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            new DownloadWebpageTask().execute("http://www.maksu.de/");
+        } else {
+            //textView.setText("No network connection available.");
+            System.out.println("MAKEZE! Server update was called!");
+        }
     }
 
     private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
@@ -46,7 +56,7 @@ public class UpdateServerService extends Service {
 
             // params comes from the execute() call: params[0] is the url.
             try {
-                return updateServer();
+                return updateServer(urls[0]);
             } catch (IOException e) {
                 return "Unable to retrieve web page. URL may be invalid.";
             }
@@ -58,9 +68,9 @@ public class UpdateServerService extends Service {
         }
     }
 
-    public String updateServer() throws IOException {
+    public String updateServer(String myurl) throws IOException {
         InputStream is = null;
-        String myurl = "http://www.google.com/";
+        //myurl = "http://www.google.com/";
         // Only display the first 500 characters of the retrieved
         // web page content.
         int len = 500;
@@ -75,7 +85,7 @@ public class UpdateServerService extends Service {
             // Starts the query
             conn.connect();
             int response = conn.getResponseCode();
-            Log.d("SERVER UPDATER LOG", "The response is: " + response);
+            Log .d("SERVER UPDATER LOG", "The response is: " + response);
             is = conn.getInputStream();
 
             // Convert the InputStream into a string
@@ -92,11 +102,15 @@ public class UpdateServerService extends Service {
 
     }
 
-    public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
+    public String readIt(InputStream stream, int len) throws IOException {
         Reader reader = null;
         reader = new InputStreamReader(stream, "UTF-8");
         char[] buffer = new char[len];
         reader.read(buffer);
         return new String(buffer);
+    }
+
+    public void getStatus(){
+
     }
 }

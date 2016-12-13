@@ -105,7 +105,7 @@ public class mainMapActivity extends AppCompatActivity implements
         //fetchFileTree intent starter
         Intent intent = new Intent(this, FetchFileTree.class);
         startActivity(intent);
-        updateServerr();
+        updateServer();
     }
 
     @Override
@@ -116,19 +116,18 @@ public class mainMapActivity extends AppCompatActivity implements
     }
 
 
-    private void updateServerr(){
+    private void updateServer(){
         final Handler handler = new Handler();
         handler.post(new Runnable() {
             @Override
             public void run() {
                 if(serverUpdate!=null){
                     try {
-                        serverUpdate.updateServer();
-                    } catch (IOException e) {
+                        serverUpdate.getStatus();
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-                System.out.println("Updating server! MAKEZE");
                 handler.postDelayed(this,10000);
             }
 
