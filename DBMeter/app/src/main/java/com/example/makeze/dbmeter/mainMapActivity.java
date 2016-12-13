@@ -109,7 +109,9 @@ public class mainMapActivity extends AppCompatActivity implements
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
 
-        overlayImages = BitmapDescriptorFactory.fromPath(Environment.getExternalStorageDirectory()+"/DBMeter/53.40_9.95_53.47_10.01.png");
+        //overlayImages = BitmapDescriptorFactory.fromPath(Environment.getExternalStorageDirectory()+"/DBMeter/53.40_9.95_53.47_10.01.png");
+        overlayImages = BitmapDescriptorFactory.fromResource(R.drawable.hh_one);
+
         LatLngBounds bound1 = new LatLngBounds(SW1,NE1);
         mGroundOverlay1 = mMap.addGroundOverlay(new GroundOverlayOptions()
                 .image(overlayImages)

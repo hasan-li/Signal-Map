@@ -52,7 +52,7 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".fetchFileTree"></activity>
+        <activity android:name=".FetchFileTree"></activity>
     </application>
 
 </manifest>
