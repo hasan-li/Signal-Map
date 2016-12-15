@@ -43,11 +43,12 @@ public class UpdateServerService extends Service {
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-            new DownloadWebpageTask().execute("http://www.maksu.de/");
+            new DownloadWebpageTask().execute("http://www.google.com/");
         } else {
             //textView.setText("No network connection available.");
             System.out.println("MAKEZE! Server update was called!");
         }
+
     }
 
     private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
@@ -82,7 +83,7 @@ public class UpdateServerService extends Service {
             conn.setConnectTimeout(15000 /* milliseconds */);
             conn.setRequestMethod("GET");
             conn.setDoInput(true);
-            // Starts the query
+            // Starts the query,
             conn.connect();
             int response = conn.getResponseCode();
             Log .d("SERVER UPDATER LOG", "The response is: " + response);
@@ -108,9 +109,5 @@ public class UpdateServerService extends Service {
         char[] buffer = new char[len];
         reader.read(buffer);
         return new String(buffer);
-    }
-
-    public void getStatus(){
-
     }
 }

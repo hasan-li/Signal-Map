@@ -123,7 +123,7 @@ public class mainMapActivity extends AppCompatActivity implements
             public void run() {
                 if(serverUpdate!=null){
                     try {
-                        serverUpdate.getStatus();
+                        //serverUpdate.getStatus();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
