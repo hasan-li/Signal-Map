@@ -12,8 +12,9 @@ https://drive.google.com/open?id=0B_C6bMaekulYcFJKcjUwaGtyejQ
     
     
 ### Step is 22m:
-(53.561544, 10.017497; 53.561396, 10.017734) - (00.000000, 00.000000; 00.000150, 00.000150)
-    
+       22m = (53.561544, 10.017497; 53.561396, 10.017734) - (00.000000, 00.000000; 00.000150, 00.000150)
+
+### Displaying layer on map
        53.672998, 9.784830-------------------26.35 km--------------------53.672998, 10.184830
             	x	                                        						x
 	            |                                       							|
@@ -25,3 +26,23 @@ https://drive.google.com/open?id=0B_C6bMaekulYcFJKcjUwaGtyejQ
                 |                                       							|              
 	            x							                                        x
       53.452998, 9.784830--------------------26.49 km---------------------53.452998, 10.184830
+
+
+
+### Format of file name to store data: 
+    xx.xm_yy.ym.dat
+
+Note: xm and ym can only have values 3|6|9.
+
+Dat file stores values in following format:
+
+    0.000000|0.000000|signalStrength
+    0.000150|0.000000|signalStrength
+    0.000300|0.000000|signalStrength
+                ...
+    0.000000|0.000150|signalStrength
+    0.000000|0.000300|signalStrength
+    0.000000|0.000450|signalStrength
+    0.000000|0.000600|signalStrength
+    --------------------------------
+       x    |    y   |signalStrength
