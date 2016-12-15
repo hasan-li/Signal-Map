@@ -5,48 +5,7 @@
 #include <math.h>
 
 
-void editFile(int x, float xm, int y, float ym, int s) {
-//void editFile(int x) {
-    FILE *fp;
-    
-    char buffer[200]; // assuming POSIX
-    int temp_x;
-    char x_folder[40], tempx[40];
-    if (x < 0){
-        x = x * (-1);
-        sprintf(tempx, "%d", x);
-        strcpy(tempx, "n");
-        strcat(x_folder, tempx);
-    }
-    else {
-        sprintf(tempx, "%d", x);
-    }
-    printf("<br /> inside func after oper %s ", tempx);
-    
-    strcpy(buffer, "data/");
-    strcat(buffer, tempx);
-    strcat(buffer, ".txt");
-    
-    
-//    sprintf(buffer, "data/%s.txt", tempx);
-    printf("<br /> %s ", buffer);
-    
-    fp = fopen(buffer, "w+");
-    
-//    fp = fopen("data/32.txt", "w+");
-    
-    if (fp) {
-//        fprintf(fp, "This is testing...\n");
-//        fputs("This is testing for fputs...\n", fp);
-        
-        fprintf(fp, "%f|%d|%f|%d\n", xm, y, ym, s);
-        
-        fclose(fp);
-    } else {
-        fprintf(stderr,"error opening file \"%s\"\n",buffer);
-        perror("error opening file.");
-    }
-}
+
 
 
 
@@ -75,6 +34,142 @@ int updateSignalStrength(){
 }
 
 
+
+int getMantissaForFolder(double mantissa){
+    int mantissaForFolder;
+    
+    if (mantissa < 0.3){
+        mantissaForFolder = 3;
+    }
+    else if ((mantissa > 0.3) && (mantissa < 0.6)) {
+        mantissaForFolder = 6;
+    }
+    else {
+        mantissaForFolder = 9;
+    }
+    
+    return mantissaForFolder;
+}
+
+
+
+
+//
+//const char * convertNegativeCoor(int coor){
+//    char folder[40], tempx[40];
+//    if (coor < 0){
+//        coor = coor * (-1);
+//        sprintf(tempx, "%d", coor);
+//        strcpy(tempx, "n");
+//        strcat(folder, tempx);
+//    }
+//    
+//    return folder;
+//}
+
+
+
+
+
+
+void editFile(float x, float y, int s) {
+    FILE *fp;
+    
+    char buffer[200]; // assuming POSIX
+    int temp_x;
+    char x_folder[40], y_folder[40];
+    
+    printf("x = %f <br />", x);
+    printf("y = %f <br />", y);
+    printf("s = %d <br />", s);
+    
+//    getting decimal and mantissa of x
+    double x_mantissa, x_temp_to_convert, y_mantissa, y_temp_to_convert;
+    int mantissaForFolder_x, mantissaForFolder_y, x_decimal, y_decimal;
+        
+//    getting decimal and integer parts of x and y
+    x_mantissa = modf(x, &x_temp_to_convert);
+    y_mantissa = modf(y, &y_temp_to_convert);
+    
+//    casting to int decimal parts
+    x_decimal = (int)x_temp_to_convert;
+    y_decimal = (int)y_temp_to_convert;
+    
+    
+//    make positive x-mantissa and y_mantissa if after splitting they have negative value 
+    if (x_mantissa < 0) { x_mantissa = x_mantissa * (-1); }
+    if (y_mantissa < 0) { y_mantissa = y_mantissa * (-1); }
+    
+    
+    
+    if (x_decimal < 0) {
+        x_decimal = x_decimal * (-1);
+        sprintf(x_folder, "n%d", x_decimal); // puts string into buffer
+    } 
+    else{
+        sprintf(x_folder, "%d", x_decimal);
+    }
+    
+    if (y_decimal < 0) {
+        y_decimal = y_decimal * (-1);
+        sprintf(y_folder, "n%d", y_decimal); // puts string into buffer
+    } 
+    else {
+        sprintf(y_folder, "%d", y_decimal);
+    }
+    
+    
+    printf("Integral part = %d <br />", x_decimal);
+    printf("Fraction Part = %lf <br />", x_mantissa);
+    
+    printf("Integral part = %c <br />", y_decimal);
+    printf("Fraction Part = %lf <br />", y_mantissa);
+    
+    
+    mantissaForFolder_x = getMantissaForFolder(x_mantissa);
+    mantissaForFolder_y = getMantissaForFolder(y_mantissa);
+    
+    printf("mantissaForFolder_x = %d <br />", mantissaForFolder_x);
+    printf("mantissaForFolder_x = %d <br />", mantissaForFolder_y);
+    
+
+    
+    sprintf(buffer, "data/%s.%d_%s.%d.txt", x_folder, mantissaForFolder_x, y_folder, mantissaForFolder_y);
+    
+    
+    printf("<br /> %s ", buffer);
+    
+    
+//    fp = fopen(buffer, "w+");
+    
+//    fp = fopen("data/32.txt", "w+");
+    
+//    if (fp) {
+//        fprintf(fp, "This is testing...\n");
+//        fputs("This is testing for fputs...\n", fp);
+//        
+//        fprintf(fp, "%f|%d|%f|%d\n", xm, y, ym, s);
+//        
+//        fclose(fp);
+//    } else {
+//        fprintf(stderr,"error opening file \"%s\"\n",buffer);
+//        perror("error opening file.");
+//    }
+        
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 int main (void){
 	printf("Content-type: text/html\n\n");
 //	printf("CGI-Program has started <br />");
@@ -96,7 +191,7 @@ int main (void){
     
 //    displaying random image
 //    printf("<img src='http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/voronoi-map-goal-distorted.png'><br />");
-    printf("http://www.wheredoyougo.net/map/ag93aGVyZS1kby15b3UtZ29yEQsSCE1hcEltYWdlGNL0_wIM.png");
+//    printf("http://www.wheredoyougo.net/map/ag93aGVyZS1kby15b3UtZ29yEQsSCE1hcEltYWdlGNL0_wIM.png");
     
     
 
@@ -119,39 +214,15 @@ int main (void){
     
     
     
-    
-    
-//    getting decimal and mantissa of x
-    double x, y, x_mantissa, x_decimal, y_mantissa, y_decimal;
+    double x, y;
     int s;
     x = atof(queryData[0]);
-    x_mantissa = modf(x, &x_decimal);
-    
     y = atof(queryData[1]);
-    y_mantissa = modf(y, &y_decimal);
-    
     s = atoi(queryData[2]);
     
-    printf("%d <br />", s);
-
-    
-//    printf("Integral part = %lf\n", x_decimal);
-//    printf("Fraction Part = %lf \n", x_mantissa);
     
     
-    int int_x, int_y;
-    
-    int_x = (int)x_decimal;
-    int_y = (int)y_decimal;
-//    printf("decimal part = %d\n", int_x);
-//    printf("decimal part = %d\n", int_y);
-    
-    
-    
-    
-    
-    editFile(int_x, x_mantissa, int_y, y_mantissa, s);
-//    editFile(int_x);
+    editFile(x, y, s);
 //    getData(x);
     
     
