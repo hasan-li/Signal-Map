@@ -5,18 +5,47 @@
 #include <math.h>
 
 
-void editFile(int number) {
+void editFile(int x, float xm, int y, float ym, int s) {
+//void editFile(int x) {
     FILE *fp;
     
     char buffer[200]; // assuming POSIX
-    sprintf(buffer, "data/%d.txt", number);
+    int temp_x;
+    char x_folder[40], tempx[40];
+    if (x < 0){
+        x = x * (-1);
+        sprintf(tempx, "%d", x);
+        strcpy(tempx, "n");
+        strcat(x_folder, tempx);
+    }
+    else {
+        sprintf(tempx, "%d", x);
+    }
+    printf("<br /> inside func after oper %s ", tempx);
+    
+    strcpy(buffer, "data/");
+    strcat(buffer, tempx);
+    strcat(buffer, ".txt");
+    
+    
+//    sprintf(buffer, "data/%s.txt", tempx);
+    printf("<br /> %s ", buffer);
     
     fp = fopen(buffer, "w+");
     
-    fprintf(fp, "This is testing...\n");
-    fputs("This is testing for fputs...\n", fp);
-    fclose(fp);
+//    fp = fopen("data/32.txt", "w+");
     
+    if (fp) {
+//        fprintf(fp, "This is testing...\n");
+//        fputs("This is testing for fputs...\n", fp);
+        
+        fprintf(fp, "%f|%d|%f|%d\n", xm, y, ym, s);
+        
+        fclose(fp);
+    } else {
+        fprintf(stderr,"error opening file \"%s\"\n",buffer);
+        perror("error opening file.");
+    }
 }
 
 
@@ -41,9 +70,14 @@ void getData(int number) {
 
 
 
+int updateSignalStrength(){
+    
+}
+
+
 int main (void){
 	printf("Content-type: text/html\n\n");
-	printf("CGI-Program has started <br />");
+//	printf("CGI-Program has started <br />");
     
 //    query saved in var query
     char query[200];
@@ -61,7 +95,8 @@ int main (void){
     
     
 //    displaying random image
-    printf("<img src='http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/voronoi-map-goal-distorted.png'><br />");
+//    printf("<img src='http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/voronoi-map-goal-distorted.png'><br />");
+    printf("http://www.wheredoyougo.net/map/ag93aGVyZS1kby15b3UtZ29yEQsSCE1hcEltYWdlGNL0_wIM.png");
     
     
 
@@ -80,7 +115,6 @@ int main (void){
         if(strstr(queryData[i], "=") != NULL) {
             queryData[i] = queryData[i] + 2;
         }
-        printf("%s <br />", queryData[i]);
     }
     
     
@@ -88,21 +122,37 @@ int main (void){
     
     
 //    getting decimal and mantissa of x
-    double x, y, x_mantissa, x_decimal;
-
+    double x, y, x_mantissa, x_decimal, y_mantissa, y_decimal;
+    int s;
     x = atof(queryData[0]);
     x_mantissa = modf(x, &x_decimal);
+    
+    y = atof(queryData[1]);
+    y_mantissa = modf(y, &y_decimal);
+    
+    s = atoi(queryData[2]);
+    
+    printf("%d <br />", s);
 
-    printf("Integral part = %lf\n", x_decimal);
-    printf("Fraction Part = %lf \n", x_mantissa);
+    
+//    printf("Integral part = %lf\n", x_decimal);
+//    printf("Fraction Part = %lf \n", x_mantissa);
+    
+    
+    int int_x, int_y;
+    
+    int_x = (int)x_decimal;
+    int_y = (int)y_decimal;
+//    printf("decimal part = %d\n", int_x);
+//    printf("decimal part = %d\n", int_y);
     
     
     
-    x = (int)x;
     
     
-//    editFile(x);
-    getData(x);
+    editFile(int_x, x_mantissa, int_y, y_mantissa, s);
+//    editFile(int_x);
+//    getData(x);
     
     
 	return 0;
