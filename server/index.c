@@ -5,10 +5,6 @@
 #include <math.h>
 
 
-
-
-
-
 void getData(int number) {
     FILE *fp;
     char buffer[255];
@@ -54,22 +50,21 @@ int getMantissaForFolder(double mantissa){
 
 
 
-//
-//const char * convertNegativeCoor(int coor){
-//    char folder[40], tempx[40];
-//    if (coor < 0){
-//        coor = coor * (-1);
-//        sprintf(tempx, "%d", coor);
-//        strcpy(tempx, "n");
-//        strcat(folder, tempx);
-//    }
-//    
-//    return folder;
-//}
+
+const char * convertNegativeCoor(int coor){
+    
+}
 
 
-
-
+int * locateStrength(double x, double y, int s){
+    double step = 0.000150;
+    static int coord_step_val[2];
+    
+    coord_step_val[0] =(int)floor(x/step);
+    coord_step_val[1] =(int)floor(y/step);
+    
+    return coord_step_val;
+}
 
 
 void editFile(float x, float y, int s) {
@@ -137,27 +132,42 @@ void editFile(float x, float y, int s) {
     sprintf(buffer, "data/%s.%d_%s.%d.txt", x_folder, mantissaForFolder_x, y_folder, mantissaForFolder_y);
     
     
-    printf("<br /> %s ", buffer);
+    printf("<br /> %s <br />", buffer);
     
     
-//    fp = fopen(buffer, "w+");
     
-//    fp = fopen("data/32.txt", "w+");
+    char coorLine[30];
+    int *coord_step_val;
+    coord_step_val = locateStrength(x_mantissa, y_mantissa, 100); // fraught with problems
+    printf("%d <br /> %d", coord_step_val[0], coord_step_val[1]);
     
-//    if (fp) {
+    
+    sprintf(coorLine, "%d|%d|%d", coord_step_val[0], coord_step_val[1], s);
+    strcat(coorLine, "\n");
+    strcat(coorLine, "\n");
+    strcat(coorLine, "\n");
+    printf("%s", coorLine);
+    printf("hello");
+    
+    
+    fp = fopen(buffer, "r+");
+    
+    
+    if (fp) {
 //        fprintf(fp, "This is testing...\n");
 //        fputs("This is testing for fputs...\n", fp);
-//        
-//        fprintf(fp, "%f|%d|%f|%d\n", xm, y, ym, s);
-//        
-//        fclose(fp);
-//    } else {
-//        fprintf(stderr,"error opening file \"%s\"\n",buffer);
-//        perror("error opening file.");
-//    }
+        
+        fprintf(fp, "\n");
+        fprintf(fp, "%s\n", coorLine);
+        
+        fclose(fp);
+    } else {
+        fprintf(stderr,"error opening file \"%s\"\n",buffer);
+        perror("error opening file.");
+    }
         
 }
-
+ 
 
 
 
