@@ -4,32 +4,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-
-void getData(int number) {
-    FILE *fp;
-    char buffer[255];
-    
-    sprintf(buffer, "data/%d.txt", number);
-    fp = fopen(buffer, "r");
-    fscanf(fp, "%s", buffer);
-    printf("1 : %s\n", buffer );
-
-    fgets(buffer, 255, (FILE*)fp);
-    printf("2: %s\n", buffer );
-
-    
-    fgets(buffer, 255, (FILE*)fp);
-    printf("3: %s\n", buffer );
-    fclose(fp);
-}
-
-
+//----------------------------------------------------------------
 
 int updateSignalStrength(){
     
 }
-
-
+//----------------------------------------------------------------
 
 int getMantissaForFolder(double mantissa){
     int mantissaForFolder;
@@ -46,15 +26,12 @@ int getMantissaForFolder(double mantissa){
     
     return mantissaForFolder;
 }
-
-
-
-
+//----------------------------------------------------------------
 
 const char * convertNegativeCoor(int coor){
     
 }
-
+//----------------------------------------------------------------
 
 int * locateStrength(double x, double y, int s){
     double step = 0.000150;
@@ -65,7 +42,7 @@ int * locateStrength(double x, double y, int s){
     
     return coord_step_val;
 }
-
+//----------------------------------------------------------------
 
 void editFile(float x, float y, int s) {
     FILE *fp;
@@ -96,7 +73,7 @@ void editFile(float x, float y, int s) {
     if (y_mantissa < 0) { y_mantissa = y_mantissa * (-1); }
     
     
-    
+//    replace negative sign with "n" if integer part is negative
     if (x_decimal < 0) {
         x_decimal = x_decimal * (-1);
         sprintf(x_folder, "n%d", x_decimal); // puts string into buffer
@@ -114,27 +91,12 @@ void editFile(float x, float y, int s) {
     }
     
     
-    printf("Integral part = %d <br />", x_decimal);
-    printf("Fraction Part = %lf <br />", x_mantissa);
-    
-    printf("Integral part = %c <br />", y_decimal);
-    printf("Fraction Part = %lf <br />", y_mantissa);
-    
-    
+//    mantissa part for folder name. (Ex.: 3|6|9)
     mantissaForFolder_x = getMantissaForFolder(x_mantissa);
     mantissaForFolder_y = getMantissaForFolder(y_mantissa);
-    
-    printf("mantissaForFolder_x = %d <br />", mantissaForFolder_x);
-    printf("mantissaForFolder_x = %d <br />", mantissaForFolder_y);
-    
 
-    
+    //buffer contains folder name and path for storing data
     sprintf(buffer, "data/%s.%d_%s.%d.txt", x_folder, mantissaForFolder_x, y_folder, mantissaForFolder_y);
-    
-    
-    printf("<br /> %s <br />", buffer);
-    
-    
     
     char coorLine[30];
     int *coord_step_val;
@@ -142,21 +104,13 @@ void editFile(float x, float y, int s) {
     printf("%d <br /> %d", coord_step_val[0], coord_step_val[1]);
     
     
-    sprintf(coorLine, "%d|%d|%d", coord_step_val[0], coord_step_val[1], s);
-    strcat(coorLine, "\n");
-    strcat(coorLine, "\n");
-    strcat(coorLine, "\n");
-    printf("%s", coorLine);
-    printf("hello");
+    sprintf(coorLine, "%d|%d|%d*", coord_step_val[0], coord_step_val[1], s);
+//    printf("%s", coorLine);
     
-    
-    fp = fopen(buffer, "r+");
+    fp = fopen(buffer, "a+");
     
     
     if (fp) {
-//        fprintf(fp, "This is testing...\n");
-//        fputs("This is testing for fputs...\n", fp);
-        
         fprintf(fp, "\n");
         fprintf(fp, "%s\n", coorLine);
         
@@ -167,15 +121,61 @@ void editFile(float x, float y, int s) {
     }
         
 }
- 
+//----------------------------------------------------------------
+
+void getData(int number) {
+    FILE *fp;
+    char buffer[255];
+    
+    sprintf(buffer, "data/%d.txt", number);
+    fp = fopen(buffer, "r");
+    fscanf(fp, "%s", buffer);
+    printf("1 : %s\n", buffer );
+
+    fgets(buffer, 255, (FILE*)fp);
+    printf("2: %s\n", buffer );
+
+    
+    fgets(buffer, 255, (FILE*)fp);
+    printf("3: %s\n", buffer );
+    fclose(fp);
+}
+//----------------------------------------------------------------
 
 
 
 
 
+int search_in_file(char *fname, char *str) {
+	FILE *fp;
+	int line_num = 1;
+	int find_result = 0;
+	char temp[512];
+	
+//	gcc users
+	if((fp = fopen(fname, "r")) == NULL) {
+		return(-1);
+	}
 
+	while(fgets(temp, 512, fp) != NULL) {
+		if((strstr(temp, str)) != NULL) {
+			printf("A match found on line: %d\n", line_num);
+			printf("\n%s\n", temp);
+			find_result++;
+		}
+		line_num++;
+	}
 
-
+	if(find_result == 0) {
+		printf("\nSorry, couldn't find a match.\n");
+	}
+	
+	//Close the file if still open.
+	if(fp) {
+		fclose(fp);
+	}
+   	return(0);
+}
 
 
 
@@ -232,7 +232,9 @@ int main (void){
     
     
     
-    editFile(x, y, s);
+    
+    search_in_file("data/32.3_n145.3.txt", "1709|810|100");
+//    editFile(x, y, s);
 //    getData(x);
     
     
