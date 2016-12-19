@@ -38,7 +38,6 @@ public class SignalStrengthService extends Service {
     }
 
     class MyPhoneStateListener extends PhoneStateListener {
-
         @Override
         public void onSignalStrengthsChanged(SignalStrength signalStrength) {
             super.onSignalStrengthsChanged(signalStrength);
