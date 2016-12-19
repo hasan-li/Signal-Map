@@ -75,7 +75,7 @@ char * generateFolderName(int x_decimal, int y_decimal, double x_mantissa, doubl
     mantissaForFolder_y = getMantissaForFolder(y_mantissa);
 
 //buffer contains folder name and path for storing data
-    sprintf(buffer, "data/%s.%d_%s.%d.txt", x_folder, mantissaForFolder_x, y_folder, mantissaForFolder_y);
+    sprintf(buffer, "data/%s.%d_%s.%d.dat", x_folder, mantissaForFolder_x, y_folder, mantissaForFolder_y);
     
     return buffer;
     
@@ -92,10 +92,9 @@ void editFile(char *folder_name, char *coorLine) {
     
     if (fp) {
         fprintf(fp, "%s\n", coorLine);
-        
         fclose(fp);
     } else {
-        fprintf(stderr,"error opening file \"%s\"\n",folder_name);
+        fprintf(stderr,"error opening file \"%s\"\n", folder_name);
         perror("error opening file.");
     }
         
@@ -129,36 +128,50 @@ void getData(int number) {
  * returns 0 if string was not found
  * returns 1 if string was found
 */
-int search_in_file(char *fname, char *str) {
+int search_in_file(char *fname, char *str, int s) {
 	FILE *fp;
-//	int line_num = 1;
+    int line_num = 1;
 	int find_result = 0;
 	char temp[1024];
     int ret = 0;
     
-    printf("%s", fname);
-    printf("%s", str);
-    
-//	gcc users
+//	gcc user
 	if((fp = fopen(fname, "r")) == NULL) {
 		return(-1);
 	}
 
 	while(fgets(temp, 1024, fp) != NULL) {
 		if((strstr(temp, str)) != NULL) {
-//			printf("A match found on line: %d\n", line_num);
-//			printf("\n%s\n", temp);
+            printf("%s", temp);
             
-//			find_result++;
             
-            ret = 1;
+//            splitting the lie by | to get strength
+            int i = 0;
+            char *p = strtok (temp, "|");
+            char *array[4];
+
+            while (p != NULL){
+                array[i++] = p;
+                p = strtok (NULL, "|");
+            }
+            
+            /* casting and comparing the strength of 
+             * signal which we get to strength which 
+             * we already have in our file
+             */
+            int line_s = (int)atof(array[2]);
+            
+            if (line_s == s){
+                ret = line_num;
+                find_result++;
+            } else {
+              ret = 0;  
+            }
 		}
-//		line_num++;
+        line_num++;
 	}
 
 	if(find_result == 0) {
-//		printf("\nSorry, couldn't find a match.\n");
-        
         ret = 0;
 	}
 	
@@ -166,9 +179,66 @@ int search_in_file(char *fname, char *str) {
 	if(fp) {
 		fclose(fp);
 	}
+    
+    
    	return ret;
 }
 
+
+
+
+void removeLineFromFile(char *fname, char *str, int s){
+    FILE *fileptr1, *fileptr2;
+    char filename[40];
+    char ch;
+    int delete_line, temp = 1;
+    
+    filename = "data/32.txt";
+    
+    //open file in read mode
+    fileptr1 = fopen(filename, "r");
+    ch = getc(fileptr1);
+    while (ch != EOF) {
+        printf("%c", ch);
+        ch = getc(fileptr1);
+    }
+    //rewind
+    rewind(fileptr1);
+    printf(" \n Enter line number of the line to be deleted:");
+    scanf("%d", &delete_line);
+    //open new file in write mode
+    fileptr2 = fopen("replica.dat", "w");
+    ch = getc(fileptr1);
+    while (ch != EOF)
+    {
+        ch = getc(fileptr1);
+        if (ch == '\n')
+        {
+            temp++;
+        }
+        //except the line to be deleted
+        if (temp != delete_line)
+        {
+            //copy all lines in file replica.c
+            putc(ch, fileptr2);
+        }
+    }
+    fclose(fileptr1);
+    fclose(fileptr2);
+    remove(filename);
+    //rename the file replica.c to original name
+    rename("replica.c", filename);
+    printf("\n The contents of file after being modified are as follows:\n");
+    fileptr1 = fopen(filename, "r");
+    ch = getc(fileptr1);
+    while (ch != EOF)
+    {
+        printf("%c", ch);
+        ch = getc(fileptr1);
+    }
+    fclose(fileptr1);
+    
+}
 
 
 
@@ -249,11 +319,14 @@ int main (void){
  * coorLine contains line
 */
     int *coord_step_val;
-    char *coorLine, temp_coorline[30];
+    char *coorLine, *coorLine_strength, temp_coorline[30], temp_coorline_strength[30];
     coord_step_val = locateStrength(x_mantissa, y_mantissa);
     
-    sprintf(temp_coorline, "%d|%d|%d*", coord_step_val[0], coord_step_val[1], s);
+    sprintf(temp_coorline, "%d|%d|", coord_step_val[0], coord_step_val[1]);
+    sprintf(temp_coorline_strength, "%d|%d|%d", coord_step_val[0], coord_step_val[1], s);
+    
     coorLine = temp_coorline;
+    coorLine_strength = temp_coorline_strength;
     
     
     
@@ -265,18 +338,13 @@ int main (void){
     
     
     
-//    engine part
-    if (search_in_file(folder_name, coorLine)){
-        
+    if (search_in_file(folder_name, coorLine, s)){
+        int line_num = search_in_file(folder_name, coorLine, s);
+        removeLineFromFile();
     }
     else {
         editFile(folder_name, coorLine);
     }
-    
-    
-    
-    
-    
     
     
     
