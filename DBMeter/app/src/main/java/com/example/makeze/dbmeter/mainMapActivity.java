@@ -44,6 +44,7 @@ public class mainMapActivity extends AppCompatActivity implements
         SeekBar.OnSeekBarChangeListener,
         GoogleMap.OnGroundOverlayClickListener {
 
+    private Context mContext;
     private static final int COARSE_PERMISSION_REQUEST_CODE = 2;
     private GoogleMap mMap;
     LocationCoordinates locationCoordinates;
@@ -80,10 +81,14 @@ public class mainMapActivity extends AppCompatActivity implements
     private UpdateServerService serverUpdate;
     private boolean signalBound = false;
 
+    private LoaderClass serverUploader;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        this.mContext = this;
         // create a folder for storage
         setContentView(R.layout.activity_main_map);
         checkPermission();
@@ -102,9 +107,15 @@ public class mainMapActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //fetchFileTree intent starter
+        // -------------------------------------------------------
+        // HAS TO BE CHANGED INTO AN INTENT SERVICE
+        // IF NOT, FRAGMENT IS COVERED BY AN EMPTY ACTIVITY
+        //
+        /*fetchFileTree intent starter
         Intent intent = new Intent(this, FetchFileTree.class);
-        startActivity(intent);
+        startActivity(intent);*/
+        //
+        // -------------------------------------------------------
         updateServer();
     }
 
@@ -114,15 +125,15 @@ public class mainMapActivity extends AppCompatActivity implements
         Intent serverUpdateIntent = new Intent(this, UpdateServerService.class);
         bindService(serverUpdateIntent, connectionToServerUpdateIntent, Context.BIND_AUTO_CREATE);
     }
-
-
+    
     private void updateServer(){
         final Handler handler = new Handler();
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if(serverUpdate!=null){
+                if(true){ // just a test
                     try {
+                        Toast.makeText(mContext,"hello",Toast.LENGTH_SHORT);
                         //serverUpdate.getStatus();
                     } catch (Exception e) {
                         e.printStackTrace();

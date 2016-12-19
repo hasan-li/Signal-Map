@@ -30,7 +30,7 @@ public class LoaderClass extends AsyncTask<Void, Void, Integer>{
 
                 URL url = new URL(baseUrl);
                 connection = (HttpURLConnection) url.openConnection();
-                connection.setConnectTimeout(10000); // ждем 10сек
+                connection.setConnectTimeout(10000);
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("User-Agent", "Mozilla/5.0");
                 connection.connect();
@@ -44,7 +44,6 @@ public class LoaderClass extends AsyncTask<Void, Void, Integer>{
                         "+ ChatActivity - ошибка соединения: " + e.getMessage());
 
             } finally {
-                // закроем соединение
                 connection.disconnect();
             }
             return res;
