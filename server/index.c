@@ -2,14 +2,15 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <math.h>
 
-//----------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int updateSignalStrength(){
     
 }
-//----------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int getMantissaForFolder(double mantissa){
     int mantissaForFolder;
@@ -26,14 +27,14 @@ int getMantissaForFolder(double mantissa){
     
     return mantissaForFolder;
 }
-//----------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 const char * convertNegativeCoor(int coor){
     
 }
-//----------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-int * locateStrength(double x, double y, int s){
+int * locateStrength(double x, double y){
     double step = 0.000150;
     static int coord_step_val[2];
     
@@ -42,36 +43,14 @@ int * locateStrength(double x, double y, int s){
     
     return coord_step_val;
 }
-//----------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void editFile(float x, float y, int s) {
-    FILE *fp;
+char * generateFolderName(int x_decimal, int y_decimal, double x_mantissa, double y_mantissa){
     
-    char buffer[200]; // assuming POSIX
-    int temp_x;
+    int mantissaForFolder_x, mantissaForFolder_y;
     char x_folder[40], y_folder[40];
     
-    printf("x = %f <br />", x);
-    printf("y = %f <br />", y);
-    printf("s = %d <br />", s);
-    
-//    getting decimal and mantissa of x
-    double x_mantissa, x_temp_to_convert, y_mantissa, y_temp_to_convert;
-    int mantissaForFolder_x, mantissaForFolder_y, x_decimal, y_decimal;
-        
-//    getting decimal and integer parts of x and y
-    x_mantissa = modf(x, &x_temp_to_convert);
-    y_mantissa = modf(y, &y_temp_to_convert);
-    
-//    casting to int decimal parts
-    x_decimal = (int)x_temp_to_convert;
-    y_decimal = (int)y_temp_to_convert;
-    
-    
-//    make positive x-mantissa and y_mantissa if after splitting they have negative value 
-    if (x_mantissa < 0) { x_mantissa = x_mantissa * (-1); }
-    if (y_mantissa < 0) { y_mantissa = y_mantissa * (-1); }
-    
+    char *buffer = malloc (sizeof (char) * 1000);
     
 //    replace negative sign with "n" if integer part is negative
     if (x_decimal < 0) {
@@ -95,33 +74,33 @@ void editFile(float x, float y, int s) {
     mantissaForFolder_x = getMantissaForFolder(x_mantissa);
     mantissaForFolder_y = getMantissaForFolder(y_mantissa);
 
-    //buffer contains folder name and path for storing data
+//buffer contains folder name and path for storing data
     sprintf(buffer, "data/%s.%d_%s.%d.txt", x_folder, mantissaForFolder_x, y_folder, mantissaForFolder_y);
     
-    char coorLine[30];
-    int *coord_step_val;
-    coord_step_val = locateStrength(x_mantissa, y_mantissa, 100); // fraught with problems
-    printf("%d <br /> %d", coord_step_val[0], coord_step_val[1]);
+    return buffer;
     
+}
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void editFile(char *folder_name, char *coorLine) {
+    FILE *fp;
     
-    sprintf(coorLine, "%d|%d|%d*", coord_step_val[0], coord_step_val[1], s);
 //    printf("%s", coorLine);
     
-    fp = fopen(buffer, "a+");
+    fp = fopen(folder_name, "a+");
     
     
     if (fp) {
-        fprintf(fp, "\n");
         fprintf(fp, "%s\n", coorLine);
         
         fclose(fp);
     } else {
-        fprintf(stderr,"error opening file \"%s\"\n",buffer);
+        fprintf(stderr,"error opening file \"%s\"\n",folder_name);
         perror("error opening file.");
     }
         
 }
-//----------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void getData(int number) {
     FILE *fp;
@@ -140,25 +119,32 @@ void getData(int number) {
     printf("3: %s\n", buffer );
     fclose(fp);
 }
-//----------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 
-
+/*
+ * looks for a string inside given file
+ * returns 0 if string was not found
+ * returns 1 if string was found
+*/
 int search_in_file(char *fname, char *str) {
 	FILE *fp;
 //	int line_num = 1;
 	int find_result = 0;
-	char temp[512];
+	char temp[1024];
     int ret = 0;
-	
+    
+    printf("%s", fname);
+    printf("%s", str);
+    
 //	gcc users
 	if((fp = fopen(fname, "r")) == NULL) {
 		return(-1);
 	}
 
-	while(fgets(temp, 512, fp) != NULL) {
+	while(fgets(temp, 1024, fp) != NULL) {
 		if((strstr(temp, str)) != NULL) {
 //			printf("A match found on line: %d\n", line_num);
 //			printf("\n%s\n", temp);
@@ -180,7 +166,7 @@ int search_in_file(char *fname, char *str) {
 	if(fp) {
 		fclose(fp);
 	}
-   	return 1;
+   	return ret;
 }
 
 
@@ -204,14 +190,12 @@ int main (void){
     char *queryData[3];
     
     
-    
 //    displaying random image
 //    printf("<img src='http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/voronoi-map-goal-distorted.png'><br />");
 //    printf("http://www.wheredoyougo.net/map/ag93aGVyZS1kby15b3UtZ29yEQsSCE1hcEltYWdlGNL0_wIM.png");
     
     
-
-/*    getting values in query inside queryData
+/* Getting values in query inside queryData
  * queryData[0] - x
  * queryData[1] - y
  * queryData[2] - strength
@@ -233,14 +217,81 @@ int main (void){
     
     double x, y;
     int s;
+//    retriving data from query
     x = atof(queryData[0]);
     y = atof(queryData[1]);
     s = atoi(queryData[2]);
     
+    printf("x = %f <br />", x);
+    printf("y = %f <br />", y);
+    printf("s = %d <br />", s);
+    
+    
+//    getting decimal and mantissa of x
+    double x_mantissa, x_temp_to_convert, y_mantissa, y_temp_to_convert;
+    int x_decimal, y_decimal;
+//    getting decimal and integer parts of x and y
+    x_mantissa = modf(x, &x_temp_to_convert);
+    y_mantissa = modf(y, &y_temp_to_convert);
+    
+//    casting to int decimal parts
+    x_decimal = (int)x_temp_to_convert;
+    y_decimal = (int)y_temp_to_convert;
+    
+//    make positive x-mantissa and y_mantissa if after splitting they have negative value 
+    if (x_mantissa < 0) { x_mantissa = x_mantissa * (-1); }
+    if (y_mantissa < 0) { y_mantissa = y_mantissa * (-1); }
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+    
+/* converting mantissa part to 0.000150 base format
+ * generating line with coordinates and strength
+ * coorLine contains line
+*/
+    int *coord_step_val;
+    char *coorLine, temp_coorline[30];
+    coord_step_val = locateStrength(x_mantissa, y_mantissa);
+    
+    sprintf(temp_coorline, "%d|%d|%d*", coord_step_val[0], coord_step_val[1], s);
+    coorLine = temp_coorline;
     
     
     
-    search_in_file("data/32.3_n145.3.txt", "1709|810|100");
+    
+    
+    //get the folder_name, where signal strength and corresponding coordinates are located
+    char* folder_name = generateFolderName(x_decimal, y_decimal, x_mantissa, y_mantissa);
+    
+    
+    
+    
+//    engine part
+    if (search_in_file(folder_name, coorLine)){
+        
+    }
+    else {
+        editFile(folder_name, coorLine);
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+//    int line_exists = search_in_file(folder_name, "55555");
+    
+//    int temp_unt = search_in_file(folder_name, "55555");
+    
+//    printf("%d", temp_unt);
+    
+//    if (temp_unt == 0){
+//        editFile(x, y, s);
+//    } else {
+//        printf("exists");
+//    }
 //    editFile(x, y, s);
 //    getData(x);
     
