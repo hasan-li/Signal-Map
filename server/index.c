@@ -148,9 +148,10 @@ void getData(int number) {
 
 int search_in_file(char *fname, char *str) {
 	FILE *fp;
-	int line_num = 1;
+//	int line_num = 1;
 	int find_result = 0;
 	char temp[512];
+    int ret = 0;
 	
 //	gcc users
 	if((fp = fopen(fname, "r")) == NULL) {
@@ -159,22 +160,27 @@ int search_in_file(char *fname, char *str) {
 
 	while(fgets(temp, 512, fp) != NULL) {
 		if((strstr(temp, str)) != NULL) {
-			printf("A match found on line: %d\n", line_num);
-			printf("\n%s\n", temp);
-			find_result++;
+//			printf("A match found on line: %d\n", line_num);
+//			printf("\n%s\n", temp);
+            
+//			find_result++;
+            
+            ret = 1;
 		}
-		line_num++;
+//		line_num++;
 	}
 
 	if(find_result == 0) {
-		printf("\nSorry, couldn't find a match.\n");
+//		printf("\nSorry, couldn't find a match.\n");
+        
+        ret = 0;
 	}
 	
 	//Close the file if still open.
 	if(fp) {
 		fclose(fp);
 	}
-   	return(0);
+   	return 1;
 }
 
 
@@ -205,11 +211,12 @@ int main (void){
     
     
 
-//    getting values in query inside queryData
-//    * queryData[0] - x
-//    * queryData[1] - y
-//    * queryData[2] - strength
-
+/*    getting values in query inside queryData
+ * queryData[0] - x
+ * queryData[1] - y
+ * queryData[2] - strength
+ */
+    
     while (token != NULL) {
         queryData[i++] = token;
         token = strtok (NULL, "&");
