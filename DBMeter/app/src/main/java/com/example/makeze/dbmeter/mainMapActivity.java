@@ -73,8 +73,8 @@ public class mainMapActivity extends AppCompatActivity implements
 
     //signal strength vars
 
-    //private SignalStrengthService signalService;
-    //public int value = 0;
+    private SignalStrengthService signalService;
+    public int value = 0;
 
     //server update vars
 
@@ -122,10 +122,10 @@ public class mainMapActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        Intent serverUpdateIntent = new Intent(this, UpdateServerService.class);
-        bindService(serverUpdateIntent, connectionToServerUpdateIntent, Context.BIND_AUTO_CREATE);
+        Intent signalStrengthIntent = new Intent(this, SignalStrengthService.class);
+        bindService(signalStrengthIntent, connectionToSignalStrengthIntent, Context.BIND_AUTO_CREATE);
     }
-    
+
     private void updateServer(){
         final Handler handler = new Handler();
         handler.post(new Runnable() {
@@ -323,12 +323,12 @@ public class mainMapActivity extends AppCompatActivity implements
         }
     }
 
-    private ServiceConnection connectionToServerUpdateIntent = new ServiceConnection() {
+    private ServiceConnection connectionToSignalStrengthIntent = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder binder) {
-            UpdateServerService.UpdateServerBinder updateServerBinder =
-                    (UpdateServerService.UpdateServerBinder) binder;
-            serverUpdate = updateServerBinder.updateTrigger();
+            SignalStrengthService.SignalStrengthBinder signalStrengthBinder =
+                    (SignalStrengthService.SignalStrengthBinder) binder;
+            signalService = signalStrengthBinder.getSignal();
             signalBound = true;
         }
         @Override
