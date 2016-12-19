@@ -122,8 +122,12 @@ public class mainMapActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
+        // intent service for signal strength
         Intent signalStrengthIntent = new Intent(this, SignalStrengthService.class);
         bindService(signalStrengthIntent, connectionToSignalStrengthIntent, Context.BIND_AUTO_CREATE);
+        // intent service for coordinates
+        Intent locationCoordinatesIntent = new Intent(this, LocationCoordinatesService.class);
+        bindService(locationCoordinatesIntent, connectionToLocationCoordinatesIntent, Context.BIND_AUTO_CREATE);
     }
 
     private void updateServer(){
@@ -324,6 +328,20 @@ public class mainMapActivity extends AppCompatActivity implements
     }
 
     private ServiceConnection connectionToSignalStrengthIntent = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder binder) {
+            SignalStrengthService.SignalStrengthBinder signalStrengthBinder =
+                    (SignalStrengthService.SignalStrengthBinder) binder;
+            signalService = signalStrengthBinder.getSignal();
+            signalBound = true;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            signalBound = false;
+        }
+    };
+
+    private ServiceConnection connectionToLocationCoordinatesIntent = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder binder) {
             SignalStrengthService.SignalStrengthBinder signalStrengthBinder =
