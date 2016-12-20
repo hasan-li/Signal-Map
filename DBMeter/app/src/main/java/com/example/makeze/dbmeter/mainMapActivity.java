@@ -1,12 +1,10 @@
 package com.example.makeze.dbmeter;
 
-import android.*;
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Environment;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -32,11 +30,7 @@ import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import android.os.Handler;
 
 public class mainMapActivity extends AppCompatActivity implements
@@ -77,7 +71,7 @@ public class mainMapActivity extends AppCompatActivity implements
     private boolean signalBound = false;
     private boolean locationBound = false;
 
-    private LoaderClass serverUploader;
+    private UploaderClass serverUploader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,9 +127,14 @@ public class mainMapActivity extends AppCompatActivity implements
             @Override
             public void run() {
                 if (locationService != null && signalService != null) {
-                    locationService.getLatitude();
-                    locationService.getLongitude();
+                    String latTrim = String.format("%.6f", locationService.getLatitude()).replace(',','.');
+                    String lonTrim = String.format("%.6f", locationService.getLongitude()).replace(',','.');
+
                     signalService.getSignalStrengthDBm();
+                    String params = "x="+lonTrim+
+                            "&y="+latTrim+
+                            "&s="+signalService.getSignalStrengthDBm(); // http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?x=XXX.XXXXXX&y=YYY.YYYYYY&s=ZZZ
+                    new UploaderClass(params).execute();
                 }
                 handler.postDelayed(this, 1000);
             }

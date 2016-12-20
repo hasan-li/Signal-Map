@@ -11,24 +11,26 @@ import java.net.URL;
  * Created by makeze on 12/15/16.
  */
 
-public class LoaderClass extends AsyncTask<Void, Void, Integer>{
+public class UploaderClass extends AsyncTask<Void, Void, Integer>{
 
     String baseUrl = "http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?"; // http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?x=XXX.XXXXXX&y=YYY.YYYYYY
-    String link;
+    String params;
     HttpURLConnection connection;
     Integer res;
 
-    LoaderClass(String link){
-        this.link = link;
+    UploaderClass(String params){
+        this.params = params;
     }
 
     @Override
-    protected Integer doInBackground(Void... params) {
+    protected Integer doInBackground(Void... urls) {
             try {
                 //String link = baseUrl+params[0]+params[1]+params[2];
                 String baseUrl = "http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?";
 
-                URL url = new URL(baseUrl);
+
+                URL url = new URL(baseUrl+params);
+                Log.i("chat", baseUrl+params);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setConnectTimeout(10000);
                 connection.setRequestMethod("GET");
@@ -53,6 +55,7 @@ public class LoaderClass extends AsyncTask<Void, Void, Integer>{
 
             try {
                 if (result == 200) {
+
                     Log.i("chat", "+ ChatActivity - сообщение успешно ушло.");
                 }
             } catch (Exception e) {
