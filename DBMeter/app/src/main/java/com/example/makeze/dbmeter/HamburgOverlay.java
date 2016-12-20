@@ -64,7 +64,7 @@ public class HamburgOverlay extends AppCompatActivity implements
     public boolean imageFoundInDirectory = false;
     String[] fileNameExtracted;
     String imageName;
-    String imageToOverlay= "null";
+    String imageToOverlay= null;
     String oldImageToOverlay= "";
 
 

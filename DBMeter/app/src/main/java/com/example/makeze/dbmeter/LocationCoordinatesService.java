@@ -3,6 +3,7 @@ package com.example.makeze.dbmeter;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,6 +15,7 @@ public class LocationCoordinatesService extends Service {
 
     private Double lat;
     private Double lon;
+    private String provider;
 
     private final IBinder binder = new LocationCoordinatesBinder();
     private static Location lastLocation = null;
@@ -51,7 +53,8 @@ public class LocationCoordinatesService extends Service {
         };
             LocationManager locManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
             try {
-                locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener);
+                provider = locManager.getBestProvider(new Criteria(), false);
+                locManager.requestLocationUpdates(provider, 1000, 1, listener);
             } catch (SecurityException e){
                 System.out.println("NO PERMISSION FOR LOCATION");
             }

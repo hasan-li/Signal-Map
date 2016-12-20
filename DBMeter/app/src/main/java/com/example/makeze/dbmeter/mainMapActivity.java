@@ -57,18 +57,8 @@ public class mainMapActivity extends AppCompatActivity implements
     private static final LatLng SW1 = new LatLng(53.51313, 9.89507); //bottom right corner of the image
     private static final LatLng NE1 = new LatLng(53.59392, 10.12355); //top left corner of the image
 
-    //hhTwo
-    private static final LatLng SW2 = new LatLng(53.59413, 9.89593); //bottom right corner of the image
-    private static final LatLng NE2 = new LatLng(53.68572, 10.12321); //top left corner of the image
-
-    //bighh
-    private static final LatLng SOUTH_WEST = new LatLng(53.45215, 9.66556); //bottom right corner of the image
-    private static final LatLng NORTH_EAST = new LatLng(53.67189, 10.2753); //top left corner of the image
-
-    private final List<BitmapDescriptor> overlayImages = new ArrayList<BitmapDescriptor>();
-    private GroundOverlay mGroundOverlay1;
-    private GroundOverlay mGroundOverlay2;
-    //private ArrayList<LatLng> cellNetworkMap = new ArrayList<LatLng>();
+    private BitmapDescriptor overlayImage;
+    private GroundOverlay mGroundOverlay;
 
     private static final int TRANSPARENCY_MAX = 100;
     private SeekBar mTransparencyBar;
@@ -163,9 +153,9 @@ public class mainMapActivity extends AppCompatActivity implements
         // mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         LatLng currentLocation = new LatLng(latitude, longitude);
-        mMap.addMarker(new MarkerOptions().position(currentLocation).title("LAT:" + latitude + " LNG:" + longitude));
+        //mMap.addMarker(new MarkerOptions().position(currentLocation).title("LAT:" + latitude + " LNG:" + longitude));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(5));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
         mMap.setBuildingsEnabled(true);
         mMap.setMaxZoomPreference(16);
         //mMap.setMinZoomPreference(9);
@@ -173,12 +163,11 @@ public class mainMapActivity extends AppCompatActivity implements
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
 
-        overlayImages.clear();
-        overlayImages.add(BitmapDescriptorFactory.fromResource(R.drawable.hh_one));
-        LatLngBounds bound1 = new LatLngBounds(SW1,NE1);
-        mGroundOverlay1 = mMap.addGroundOverlay(new GroundOverlayOptions()
-                .image(overlayImages.get(0))
-                .positionFromBounds(bound1)
+        overlayImage = BitmapDescriptorFactory.fromResource(R.drawable.hh_one);
+        LatLngBounds bound = new LatLngBounds(SW1,NE1);
+        mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
+                .image(overlayImage)
+                .positionFromBounds(bound)
                 .transparency(0.2f));
 
         mTransparencyBar.setOnSeekBarChangeListener(this);
@@ -295,8 +284,8 @@ public class mainMapActivity extends AppCompatActivity implements
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if (mGroundOverlay1 != null) {
-            mGroundOverlay1.setTransparency((float) progress / (float) TRANSPARENCY_MAX);
+        if (mGroundOverlay != null) {
+            mGroundOverlay.setTransparency((float) progress / (float) TRANSPARENCY_MAX);
         }
 
     }
