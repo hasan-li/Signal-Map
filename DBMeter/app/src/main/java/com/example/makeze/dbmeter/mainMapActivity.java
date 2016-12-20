@@ -74,7 +74,10 @@ public class mainMapActivity extends AppCompatActivity implements
     //signal strength vars
 
     private SignalStrengthService signalService;
-    public int value = 0;
+    public int signalStrengthDBm = 0;
+
+    private LocationCoordinatesService locationService;
+
 
     //server update vars
 
@@ -344,9 +347,9 @@ public class mainMapActivity extends AppCompatActivity implements
     private ServiceConnection connectionToLocationCoordinatesIntent = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder binder) {
-            SignalStrengthService.SignalStrengthBinder signalStrengthBinder =
-                    (SignalStrengthService.SignalStrengthBinder) binder;
-            signalService = signalStrengthBinder.getSignal();
+            LocationCoordinatesService.LocationCoordinatesBinder locationCoordinatesBinder =
+                    (LocationCoordinatesService.LocationCoordinatesBinder) binder;
+            locationService = locationCoordinatesBinder.getLocationService();
             signalBound = true;
         }
         @Override

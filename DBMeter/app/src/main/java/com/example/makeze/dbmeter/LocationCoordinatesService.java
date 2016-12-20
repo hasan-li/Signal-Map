@@ -12,12 +12,14 @@ import android.os.IBinder;
 
 public class LocationCoordinatesService extends Service {
 
+    private double lat=404;
+    private double lon=404;
+
     private final IBinder binder = new LocationCoordinatesBinder();
     private static Location lastLocation = null;
-    private static double distanceInMeters;
 
     public class LocationCoordinatesBinder extends Binder {
-        LocationCoordinatesService getLocation() {
+        LocationCoordinatesService getLocationService() {
             return LocationCoordinatesService.this;
         }
     }
@@ -31,7 +33,8 @@ public class LocationCoordinatesService extends Service {
                 if (lastLocation == null) {
                 }
                 lastLocation = location;
-                distanceInMeters += location.distanceTo(lastLocation);
+                lat = location.getLatitude();
+                lon = location.getLongitude();
             }
 
             @Override
@@ -52,6 +55,15 @@ public class LocationCoordinatesService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
+    }
+
+    public double[] getCoordinates(){
+        double [] array;
+        array = new double[2];
+        array[0] = lat;
+        array[1] = lon;
+        System.out.println(lat+" !! "+lon);
+        return array;
     }
 
 }
