@@ -128,24 +128,39 @@ void getData(int number) {
  * returns 0 if string was not found
  * returns 1 if string was found
 */
-int search_in_file(char *fname, char *str, int s) {
+int * search_in_file(char *fname, char *str, int s) {
 	FILE *fp;
     int line_num = 1;
 	int find_result = 0;
 	char temp[1024];
-    int ret = 0;
+    
+    
+    printf("<br />in search_in_file");
+    printf("<br />in fname: %s", fname);
+    printf("<br />in str: %s", str);
+    printf("<br />in s: %d", s);
+    
+    /*
+     * ret[0] - 0|1
+     * ret[1] - old value of signal strength (line_s)
+     * ret[2] - line num
+     * ret[4] - error if 1
+    */
+    static int ret[4];
     
 //	gcc user
 	if((fp = fopen(fname, "r")) == NULL) {
-		return(-1);
+		ret[3] = 1;
+        return ret;
 	}
 
 	while(fgets(temp, 1024, fp) != NULL) {
 		if((strstr(temp, str)) != NULL) {
-            printf("%s", temp);
+            
+//            printf("%s", temp);
             
             
-//            splitting the lie by | to get strength
+//            splitting the line by | to get strength
             int i = 0;
             char *p = strtok (temp, "|");
             char *array[4];
@@ -162,17 +177,28 @@ int search_in_file(char *fname, char *str, int s) {
             int line_s = (int)atof(array[2]);
             
             if (line_s == s){
-                ret = line_num;
-                find_result++;
+                
+                printf("<br />line_s == s");
+                
+                ret[0] = 1;
+                ret[1] = 0;
+                ret[2] = 0;
             } else {
-              ret = 0;  
+                ret[0] = 1;
+                ret[1] = line_s;
+                ret[2] = line_num;
+                
+                printf("<br />line_s != s");
             }
+            find_result++;
 		}
         line_num++;
 	}
 
 	if(find_result == 0) {
-        ret = 0;
+        ret[0] = 0;
+        ret[1] = 0;
+        ret[2] = 0;
 	}
 	
 	//Close the file if still open.
@@ -187,56 +213,59 @@ int search_in_file(char *fname, char *str, int s) {
 
 
 
-void removeLineFromFile(char *fname, char *str, int s){
-    FILE *fileptr1, *fileptr2;
-    char filename[40];
-    char ch;
-    int delete_line, temp = 1;
+void removeLineFromFile(char *filename, int del_line){
+    FILE *fp1, *fp2;
+    char c;
+    int temp = 1;
     
-    filename = "data/32.txt";
+    printf("<br /> del_line: %d", del_line);
     
     //open file in read mode
-    fileptr1 = fopen(filename, "r");
-    ch = getc(fileptr1);
-    while (ch != EOF) {
-        printf("%c", ch);
-        ch = getc(fileptr1);
+    fp1 = fopen(filename, "r");
+    c = getc(fp1);
+    printf("<br /> c1: %c", c);
+    //until the last character of file is obtained
+    while (c != EOF) {
+        printf("<br /> c: %c", c);
+        //print current character and read next character
+        c = getc(fp1);
     }
+    //PROBLEM HERE: ADDING RANDOM CHAR AT THE END OF FILE
+    
     //rewind
-    rewind(fileptr1);
-    printf(" \n Enter line number of the line to be deleted:");
-    scanf("%d", &delete_line);
+    rewind(fp1);
     //open new file in write mode
-    fileptr2 = fopen("replica.dat", "w");
-    ch = getc(fileptr1);
-    while (ch != EOF)
-    {
-        ch = getc(fileptr1);
-        if (ch == '\n')
-        {
+    fp2 = fopen("data/copy.dat", "w");
+    c = getc(fp1);
+    printf("<br /> c2: %c", c);
+    rewind(fp1);
+    while (c != EOF) {
+        c = getc(fp1);
+        printf("<br />inside while. c: %c, temp: %d", c, temp);
+        if (c == '\n'){
             temp++;
         }
         //except the line to be deleted
-        if (temp != delete_line)
-        {
-            //copy all lines in file replica.c
-            putc(ch, fileptr2);
+        if (temp != del_line) {
+            //copy all lines in file copy.data
+            putc(c, fp2); 
         }
     }
-    fclose(fileptr1);
-    fclose(fileptr2);
+    //close both files
+    fclose(fp1);
+    fclose(fp2);
+    //remove original file
     remove(filename);
-    //rename the file replica.c to original name
-    rename("replica.c", filename);
-    printf("\n The contents of file after being modified are as follows:\n");
-    fileptr1 = fopen(filename, "r");
-    ch = getc(fileptr1);
-    while (ch != EOF)
-    {
-        printf("%c", ch);
-        ch = getc(fileptr1);
+    //rename the file data/copy.dat to original name
+    rename("data/copy.dat", filename);
+    printf("<br /> The contents of file after being modified are as  follows:\n");
+    fp1 = fopen(filename, "r");
+    c = getc(fp1);
+    while (c != EOF) {
+        printf("%c", c);
+        c = getc(fp1);
     }
-    fclose(fileptr1);
+    fclose(fp1);
     
 }
 
@@ -318,15 +347,15 @@ int main (void){
  * generating line with coordinates and strength
  * coorLine contains line
 */
-    int *coord_step_val;
+    int *coord_step_val, *search_res;
     char *coorLine, *coorLine_strength, temp_coorline[30], temp_coorline_strength[30];
     coord_step_val = locateStrength(x_mantissa, y_mantissa);
     
     sprintf(temp_coorline, "%d|%d|", coord_step_val[0], coord_step_val[1]);
-    sprintf(temp_coorline_strength, "%d|%d|%d", coord_step_val[0], coord_step_val[1], s);
+
     
     coorLine = temp_coorline;
-    coorLine_strength = temp_coorline_strength;
+
     
     
     
@@ -338,12 +367,40 @@ int main (void){
     
     
     
-    if (search_in_file(folder_name, coorLine, s)){
-        int line_num = search_in_file(folder_name, coorLine, s);
-        removeLineFromFile();
+    
+    search_res = search_in_file(folder_name, coorLine, s);
+    /*
+     * search_res[0] - 0|1
+     * search_res[1] - old value of signal strength (line_s)
+     * search_res[2] - line num
+    */
+    
+    
+    printf("<br /> new search_res[0]: %d", search_res[0]);
+    printf("<br /> new search_res[1]: %d", search_res[1]);
+    printf("<br /> new search_res[2]: %d", search_res[2]);
+    
+    if (search_res[0]){
+        if (search_res[1] != 0){
+            printf("<br /> match found");
+            removeLineFromFile(folder_name, search_res[2]);
+            
+            //averaging signal strength
+            s = 0.8*s + 0.2*search_res[1];
+            printf("<br /> new s: %d", s);
+            
+            //addind new value of coorLine with contcatenated s
+            sprintf(temp_coorline_strength, "%d|%d|%d", coord_step_val[0], coord_step_val[1], s);
+            coorLine_strength = temp_coorline_strength;
+            printf("<br /> new coorLine_strength: %s", coorLine_strength);
+            editFile(folder_name, coorLine_strength); 
+        }
     }
     else {
-        editFile(folder_name, coorLine);
+        
+        sprintf(temp_coorline_strength, "%d|%d|%d", coord_step_val[0], coord_step_val[1], s);
+        coorLine_strength = temp_coorline_strength;
+        editFile(folder_name, coorLine_strength);
     }
     
     
