@@ -38,16 +38,17 @@ public class SignalStrengthService extends Service {
     }
 
     class MyPhoneStateListener extends PhoneStateListener {
-
         @Override
         public void onSignalStrengthsChanged(SignalStrength signalStrength) {
             super.onSignalStrengthsChanged(signalStrength);
-            mSignalStrength = signalStrength.getGsmSignalStrength();
+            //mSignalStrength = signalStrength.getGsmSignalStrength();
             mSignalStrength = signalStrength.getCdmaDbm();
+            System.out.println("Here dragons are: "+mSignalStrength);
         }
     }
 
-    public int getSignalStrengthDB(){
+    public int getSignalStrengthDBm(){
+        System.out.println("!! "+ mSignalStrength);
         return ((2 * mSignalStrength) - 113);
     }
 }

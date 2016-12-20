@@ -1,10 +1,10 @@
 package com.example.makeze.dbmeter;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Environment;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -30,11 +30,7 @@ import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import android.os.Handler;
 
 public class mainMapActivity extends AppCompatActivity implements
@@ -55,18 +51,8 @@ public class mainMapActivity extends AppCompatActivity implements
     private static final LatLng SW1 = new LatLng(53.51313, 9.89507); //bottom right corner of the image
     private static final LatLng NE1 = new LatLng(53.59392, 10.12355); //top left corner of the image
 
-    //hhTwo
-    private static final LatLng SW2 = new LatLng(53.59413, 9.89593); //bottom right corner of the image
-    private static final LatLng NE2 = new LatLng(53.68572, 10.12321); //top left corner of the image
-
-    //bighh
-    private static final LatLng SOUTH_WEST = new LatLng(53.45215, 9.66556); //bottom right corner of the image
-    private static final LatLng NORTH_EAST = new LatLng(53.67189, 10.2753); //top left corner of the image
-
-    private final List<BitmapDescriptor> overlayImages = new ArrayList<BitmapDescriptor>();
-    private GroundOverlay mGroundOverlay1;
-    private GroundOverlay mGroundOverlay2;
-    //private ArrayList<LatLng> cellNetworkMap = new ArrayList<LatLng>();
+    private BitmapDescriptor overlayImage;
+    private GroundOverlay mGroundOverlay;
 
     private static final int TRANSPARENCY_MAX = 100;
     private SeekBar mTransparencyBar;
@@ -74,14 +60,18 @@ public class mainMapActivity extends AppCompatActivity implements
     //signal strength vars
 
     private SignalStrengthService signalService;
-    public int value = 0;
+    public int signalStrengthDBm = 0;
+
+    private LocationCoordinatesService locationService;
+
 
     //server update vars
 
     private UpdateServerService serverUpdate;
     private boolean signalBound = false;
+    private boolean locationBound = false;
 
-    private LoaderClass serverUploader;
+    private UploaderClass serverUploader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +81,8 @@ public class mainMapActivity extends AppCompatActivity implements
         this.mContext = this;
         // create a folder for storage
         setContentView(R.layout.activity_main_map);
-        checkPermission();
+        checkPermissionTelephony();
+        checkPermissionLocation();
 
         Button mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
         mainMenuSetup(mainMenuButton);
@@ -122,8 +113,12 @@ public class mainMapActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
+        // intent service for signal strength
         Intent signalStrengthIntent = new Intent(this, SignalStrengthService.class);
         bindService(signalStrengthIntent, connectionToSignalStrengthIntent, Context.BIND_AUTO_CREATE);
+        // intent service for coordinates
+        Intent locationCoordinatesIntent = new Intent(this, LocationCoordinatesService.class);
+        bindService(locationCoordinatesIntent, connectionToLocationCoordinatesIntent, Context.BIND_AUTO_CREATE);
     }
 
     private void updateServer(){
@@ -131,20 +126,20 @@ public class mainMapActivity extends AppCompatActivity implements
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if(true){ // just a test
-                    try {
-                        Toast.makeText(mContext,"hello",Toast.LENGTH_SHORT);
-                        //serverUpdate.getStatus();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                handler.postDelayed(this,10000);
-            }
+                if (locationService != null && signalService != null) {
+                    String latTrim = String.format("%.6f", locationService.getLatitude()).replace(',','.');
+                    String lonTrim = String.format("%.6f", locationService.getLongitude()).replace(',','.');
 
+                    signalService.getSignalStrengthDBm();
+                    String params = "x="+lonTrim+
+                            "&y="+latTrim+
+                            "&s="+signalService.getSignalStrengthDBm(); // http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?x=XXX.XXXXXX&y=YYY.YYYYYY&s=ZZZ
+                    new UploaderClass(params).execute();
+                }
+                handler.postDelayed(this, 1000);
+            }
         });
     }
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -158,9 +153,9 @@ public class mainMapActivity extends AppCompatActivity implements
         // mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         LatLng currentLocation = new LatLng(latitude, longitude);
-        mMap.addMarker(new MarkerOptions().position(currentLocation).title("LAT:" + latitude + " LNG:" + longitude));
+        //mMap.addMarker(new MarkerOptions().position(currentLocation).title("LAT:" + latitude + " LNG:" + longitude));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(5));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
         mMap.setBuildingsEnabled(true);
         mMap.setMaxZoomPreference(16);
         //mMap.setMinZoomPreference(9);
@@ -168,12 +163,11 @@ public class mainMapActivity extends AppCompatActivity implements
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
 
-        overlayImages.clear();
-        overlayImages.add(BitmapDescriptorFactory.fromResource(R.drawable.hh_one));
-        LatLngBounds bound1 = new LatLngBounds(SW1,NE1);
-        mGroundOverlay1 = mMap.addGroundOverlay(new GroundOverlayOptions()
-                .image(overlayImages.get(0))
-                .positionFromBounds(bound1)
+        overlayImage = BitmapDescriptorFactory.fromResource(R.drawable.hh_one);
+        LatLngBounds bound = new LatLngBounds(SW1,NE1);
+        mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
+                .image(overlayImage)
+                .positionFromBounds(bound)
                 .transparency(0.2f));
 
         mTransparencyBar.setOnSeekBarChangeListener(this);
@@ -219,7 +213,7 @@ public class mainMapActivity extends AppCompatActivity implements
 
     // stuff for locaiton service goes here
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
+    private static final int FINE_PERMISSION_REQUEST_CODE = 1;
     /**
      * Flag indicating whether a requested permission has been denied after returning in
      * {@link #onRequestPermissionsResult(int, String[], int[])}.
@@ -290,8 +284,8 @@ public class mainMapActivity extends AppCompatActivity implements
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if (mGroundOverlay1 != null) {
-            mGroundOverlay1.setTransparency((float) progress / (float) TRANSPARENCY_MAX);
+        if (mGroundOverlay != null) {
+            mGroundOverlay.setTransparency((float) progress / (float) TRANSPARENCY_MAX);
         }
 
     }
@@ -310,7 +304,7 @@ public class mainMapActivity extends AppCompatActivity implements
     public void onGroundOverlayClick(GroundOverlay groundOverlay) {
     }
 
-    public void checkPermission() {
+    public void checkPermissionTelephony() {
         Log.i("PERMISSION LOG", "Requesting telephony permissions.");
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -318,6 +312,19 @@ public class mainMapActivity extends AppCompatActivity implements
             // Permission to access the location is missing.
             PermissionUtils.requestPermission(this, COARSE_PERMISSION_REQUEST_CODE,
                     android.Manifest.permission.ACCESS_COARSE_LOCATION, true);
+        } else {
+            Log.i("PERMISSION LOG", "Telephony permission been granted.");
+        }
+    }
+
+    public void checkPermissionLocation() {
+        Log.i("PERMISSION LOG", "Requesting telephony permissions.");
+
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, FINE_PERMISSION_REQUEST_CODE,
+                    Manifest.permission.ACCESS_FINE_LOCATION, true);
         } else {
             Log.i("PERMISSION LOG", "Telephony permission been granted.");
         }
@@ -334,6 +341,20 @@ public class mainMapActivity extends AppCompatActivity implements
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             signalBound = false;
+        }
+    };
+
+    private ServiceConnection connectionToLocationCoordinatesIntent = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder binder) {
+            LocationCoordinatesService.LocationCoordinatesBinder locationCoordinatesBinder =
+                    (LocationCoordinatesService.LocationCoordinatesBinder) binder;
+            locationService = locationCoordinatesBinder.getLocationService();
+            locationBound = true;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            locationBound = false;
         }
     };
 
