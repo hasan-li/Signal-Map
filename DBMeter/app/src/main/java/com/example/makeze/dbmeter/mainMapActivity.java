@@ -132,9 +132,10 @@ public class mainMapActivity extends AppCompatActivity implements
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if (locationService != null) {
-                    locationService.getLat();
-                    locationService.getLon();
+                if (locationService != null && signalService != null) {
+                    locationService.getLatitude();
+                    locationService.getLongitude();
+                    signalService.getSignalStrengthDBm();
                 }
                 handler.postDelayed(this, 1000);
             }

@@ -64,14 +64,14 @@ public class LocationCoordinatesService extends Service {
         return binder;
     }
 
-    public double getLat(){
+    public double getLatitude(){
         System.out.println(lat+" !! "+lon);
         if(lat!=null)
             return lat;
         else return 404;
     }
 
-    public double getLon(){
+    public double getLongitude(){
         System.out.println(lat+" !! "+lon);
         if(lon!=null)
             return lon;
