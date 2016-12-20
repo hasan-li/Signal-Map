@@ -37,14 +37,8 @@ public class HamburgOverlay extends AppCompatActivity implements
         SeekBar.OnSeekBarChangeListener, OnMapReadyCallback, GoogleMap.OnGroundOverlayClickListener {
 
     private GoogleMap mMap;
-    //hhOne
-    private static final LatLng SW1 = new LatLng(53.51313, 9.89507); //bottom right corner of the image
-    private static final LatLng NE1 = new LatLng(53.59392, 10.12355); //top left corner of the image
 
-    private static final LatLng SOUTH_WEST = new LatLng(53.45215, 9.66556); //bottom right corner of the image
-    private static final LatLng NORTH_EAST = new LatLng(53.67189, 10.2753); //top left corner of the image
-
-    private BitmapDescriptor Image;
+    private BitmapDescriptor image;
     private GroundOverlay mGroundOverlay;
 
     private static final int TRANSPARENCY_MAX = 100;
@@ -55,14 +49,23 @@ public class HamburgOverlay extends AppCompatActivity implements
     LatLng currentLocation;
     double latitude;
     double longitude;
+    private double latOne, latTwo;
+    private double lngOne, lngTwo;
+    private LatLng SW2 ; //bottom right corner of the image
+    private LatLng NE2 ; //top left corner of the image
+    //hhOne
+    private static final LatLng SW1 = new LatLng(53.51313, 9.89507); //bottom right corner of the image
+    private static final LatLng NE1 = new LatLng(53.59392, 10.12355); //top left corner of the image
+
 
     private int READ_EXTERNAL_STORAGE_CODE = 5;
 
-    String[] fileNameExtracted;
-    String imageName;
     File dir;
     public boolean imageFoundInDirectory = false;
-    String imageToOverlay = "";
+    String[] fileNameExtracted;
+    String imageName;
+    String imageToOverlay= "null";
+    String oldImageToOverlay= "";
 
 
     @Override
@@ -74,6 +77,9 @@ public class HamburgOverlay extends AppCompatActivity implements
         latitude = locationCoordinates.getLatitude();
         longitude = locationCoordinates.getLongitude();
         currentLocation = new LatLng(latitude, longitude);
+
+        latitudeApproximator();
+        longitudeApproximator();
 
         mTransparencyBar = (SeekBar) findViewById(R.id.transparencySeekBar);
         mTransparencyBar.setMax(TRANSPARENCY_MAX);
@@ -109,39 +115,62 @@ public class HamburgOverlay extends AppCompatActivity implements
         mMap = googleMap;
         mMap.setOnGroundOverlayClickListener(this);
 
-        Image = BitmapDescriptorFactory.fromResource(R.drawable.bighh);
-
-       // mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        // mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.addMarker(new MarkerOptions().position(currentLocation).title("LAT:" + latitude + " LNG:" + longitude));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
         mMap.setBuildingsEnabled(true);
         mMap.setMaxZoomPreference(16);
-        //mMap.setMinZoomPreference(9);
 
-        LatLngBounds bounds = new LatLngBounds(SOUTH_WEST,NORTH_EAST);
 
+        //display this default overlay when there is no signal strength image to display
+        LatLngBounds bound = new LatLngBounds(SW1, NE1);
+        image = BitmapDescriptorFactory.fromResource(R.drawable.hh_one);
         mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
-                .image(Image)
-                .positionFromBounds(bounds)
-                .transparency(0.8f));
+                .image(image)
+                .positionFromBounds(bound)
+                .transparency(0.9f));
 
-        if(imageFoundInDirectory){
-            System.out.println("TEST: DRAWING OVERLAY "+imageFoundInDirectory);
-            Toast.makeText(getApplicationContext(),"Image found in app directory.", Toast.LENGTH_LONG).show();
-            Image = BitmapDescriptorFactory.fromPath(dir+"/"+imageToOverlay);
-            mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
-                    .image(Image)
-                    .position(currentLocation, 8000f, 6000f)
-                    .transparency(0.1f));
+        //coord. names are changed to image name. if the image name is different, go to this loop.
+        if (!oldImageToOverlay.equals(imageToOverlay)) {
+
+            //if the image is in directory, use that image for overlay
+            if (imageFoundInDirectory) {
+                System.out.println("TEST: DRAWING OVERLAY " + imageFoundInDirectory + " with image: " + imageToOverlay);
+                Toast.makeText(getApplicationContext(), "Image found in app directory.", Toast.LENGTH_LONG).show();
+
+                bound = new LatLngBounds(SW2, NE2);
+                image = BitmapDescriptorFactory.fromPath(dir + "/" + imageToOverlay);
+                mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
+                        .image(image)
+                        .positionFromBounds(bound)
+                        .transparency(0.1f));
+            }
+            //if it is not is directory, download the image
+            else {
+                System.out.println("TEST: DOWNLOADING IMAGE " + imageFoundInDirectory);
+                Toast.makeText(getApplicationContext(), "Image is downloading from server", Toast.LENGTH_LONG).show();
+            }
+
+            oldImageToOverlay = imageToOverlay;
+
         }
+
+        //if the image name is same, it means user is at the same place. display this overlay.
         else{
-            System.out.println("TEST: DOWNLOADING IMAGE "+imageFoundInDirectory);
-            Toast.makeText(getApplicationContext(),"Image is downloading from server", Toast.LENGTH_LONG).show();
+
+            bound = new LatLngBounds(SW2, NE2);
+            image = BitmapDescriptorFactory.fromPath(dir + "/" + imageToOverlay);
+            mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
+                    .image(image)
+                    .positionFromBounds(bound)
+                    .transparency(0.1f));
+
         }
 
         mTransparencyBar.setOnSeekBarChangeListener(this);
+
     }
 
 
@@ -156,41 +185,80 @@ public class HamburgOverlay extends AppCompatActivity implements
             imageName=filePath.substring(filePath.lastIndexOf("/")+1);
             System.out.println("imageName: "+imageName);
 
-            Pattern p = Pattern.compile("(.*?).png");
+            Pattern p = Pattern.compile("(.*?).bmp");
             Matcher m = p.matcher(imageName);
 
             while (m.find()) {
 
-                //System.out.println("FILE "+m.group(1));
                 String tempName = m.group(1);
                 fileNameExtracted = tempName.split("_");
                 System.out.println("fileNameExtracted: "+ Arrays.toString(fileNameExtracted));
             }
 
-            if(latitude >= Double.parseDouble(fileNameExtracted[0]) && latitude <= Double.parseDouble(fileNameExtracted[2])
-                    && longitude >= Double.parseDouble(fileNameExtracted[1]) && longitude <= Double.parseDouble(fileNameExtracted[3])){
+            if(latOne == Double.parseDouble(fileNameExtracted[0]) && latTwo == Double.parseDouble(fileNameExtracted[2])
+                    && lngOne == Double.parseDouble(fileNameExtracted[1]) && lngTwo == Double.parseDouble(fileNameExtracted[3])){
 
                 imageFoundInDirectory = true;
-                imageToOverlay = fileNameExtracted[0]+"_"+fileNameExtracted[1]+"_"+fileNameExtracted[2]+"_"+fileNameExtracted[3]+".png";
-                System.out.println("TEST IMAGE FOUND: "+imageFoundInDirectory);
-                System.out.println("TEST Hamburg Overlay found "+ Arrays.toString(fileNameExtracted));
-            /*
-                overlayImage = BitmapDescriptorFactory.fromPath(dir+"/"+imageName);
-                mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
-                        .image(overlayImage)
-                        .position(currentLocation, 4300f, 3025f)
-                        .transparency(0.2f));
-            */
-
+                imageToOverlay = fileNameExtracted[0]+"_"+fileNameExtracted[1]+"_"+fileNameExtracted[2]+"_"+fileNameExtracted[3]+".bmp";
+                System.out.println("TEST: Hamburg Overlay found for: "+ Arrays.toString(fileNameExtracted));
+                SW2 = new LatLng(latOne, lngOne);
+                NE2 = new LatLng(latTwo, lngTwo);
+                //oldImageToOverlay = imageToOverlay;
             }
             else{
-                System.out.println("TEST IMAGE NOT FOUND. DOWNLOAD IT.");
-                System.out.println("TEST Hamburg Overlay NOT found: "+ Arrays.toString(fileNameExtracted));
+                System.out.println("TEST: Hamburg Overlay NOT found for:  "+ Arrays.toString(fileNameExtracted));
 
             }
 
         }
+
+        System.out.println("TEST: Image coordinates are: " + latOne+"_"+lngOne+"_"+latTwo+"_"+lngTwo);
     }
+
+
+    public void latitudeApproximator() {
+
+        if(latitude >= (Math.floor(latitude)+0.0) && latitude < (Math.floor(latitude)+0.3)){
+            //System.out.println("TEST latAprox: "+latitude+" lies within 0 and 0.3");
+            latOne = Math.floor(latitude)+0.0;
+            latTwo = Math.floor(latitude)+0.3;
+        }
+
+        else if(latitude >= (Math.floor(latitude)+0.3) && latitude < (Math.floor(latitude)+0.6)){
+            //System.out.println("TEST latAprox: "+latitude+" lies within 0.3 and 0.6");
+            latOne = Math.floor(latitude)+0.3;
+            latTwo = Math.floor(latitude)+0.6;
+        }
+
+        if(latitude >= (Math.floor(latitude)+0.6) && latitude < (Math.floor(latitude)+0.9999)){
+            //System.out.println("TEST latAprox: "+latitude+" lies within 0.6 and 0.9999");
+            latOne = Math.floor(latitude)+0.6;
+            latTwo = Math.floor(latitude)+0.9;
+        }
+    }
+
+
+    public void longitudeApproximator(){
+
+        if(longitude >= (Math.floor(longitude)+0.0) && longitude < (Math.floor(longitude)+0.3)){
+            //System.out.println("TEST lngAprox: "+longitude+" lies within 0 and 0.3");
+            lngOne = Math.floor(longitude)+0.0;
+            lngTwo = Math.floor(longitude)+0.3;
+        }
+
+        else if(longitude >= (Math.floor(longitude)+0.3) && longitude < (Math.floor(longitude)+0.6)){
+            //System.out.println("TEST lngAprox: "+longitude+" lies within 0.3 and 0.6");
+            lngOne = Math.floor(longitude)+0.3;
+            lngTwo = Math.floor(longitude)+0.6;
+        }
+
+        if(longitude >= (Math.floor(longitude)+0.6) && longitude < (Math.floor(longitude)+0.9999)){
+            //System.out.println("TEST lngAprox: "+longitude+" lies within 0.6 and 0.9999");
+            lngOne = Math.floor(longitude)+0.6;
+            lngTwo = Math.floor(longitude)+0.9;
+        }
+    }
+
 
 
     public void showTreePerm(File dir){
@@ -204,7 +272,6 @@ public class HamburgOverlay extends AppCompatActivity implements
         } else {
             Log.i("PERMISSION LOG", "Readstuff permission been granted.");
             showTree(dir);
-
         }
     }
 
@@ -230,7 +297,7 @@ public class HamburgOverlay extends AppCompatActivity implements
     @Override
     public void onGroundOverlayClick(GroundOverlay groundOverlay) {
         mGroundOverlay.setTransparency(0.5f - mGroundOverlay.getTransparency());
-
     }
 
 }
+
