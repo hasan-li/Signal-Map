@@ -1,5 +1,7 @@
 package com.example.makeze.dbmeter;
 
+import android.*;
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -83,6 +85,7 @@ public class mainMapActivity extends AppCompatActivity implements
 
     private UpdateServerService serverUpdate;
     private boolean signalBound = false;
+    private boolean locationBound = false;
 
     private LoaderClass serverUploader;
 
@@ -94,7 +97,8 @@ public class mainMapActivity extends AppCompatActivity implements
         this.mContext = this;
         // create a folder for storage
         setContentView(R.layout.activity_main_map);
-        checkPermission();
+        checkPermissionTelephony();
+        checkPermissionLocation();
 
         Button mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
         mainMenuSetup(mainMenuButton);
@@ -138,20 +142,14 @@ public class mainMapActivity extends AppCompatActivity implements
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if(true){ // just a test
-                    try {
-                        Toast.makeText(mContext,"hello",Toast.LENGTH_SHORT);
-                        //serverUpdate.getStatus();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                if (locationService != null) {
+                    locationService.getLat();
+                    locationService.getLon();
                 }
-                handler.postDelayed(this,10000);
+                handler.postDelayed(this, 1000);
             }
-
         });
     }
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -226,7 +224,7 @@ public class mainMapActivity extends AppCompatActivity implements
 
     // stuff for locaiton service goes here
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
+    private static final int FINE_PERMISSION_REQUEST_CODE = 1;
     /**
      * Flag indicating whether a requested permission has been denied after returning in
      * {@link #onRequestPermissionsResult(int, String[], int[])}.
@@ -317,7 +315,7 @@ public class mainMapActivity extends AppCompatActivity implements
     public void onGroundOverlayClick(GroundOverlay groundOverlay) {
     }
 
-    public void checkPermission() {
+    public void checkPermissionTelephony() {
         Log.i("PERMISSION LOG", "Requesting telephony permissions.");
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -325,6 +323,19 @@ public class mainMapActivity extends AppCompatActivity implements
             // Permission to access the location is missing.
             PermissionUtils.requestPermission(this, COARSE_PERMISSION_REQUEST_CODE,
                     android.Manifest.permission.ACCESS_COARSE_LOCATION, true);
+        } else {
+            Log.i("PERMISSION LOG", "Telephony permission been granted.");
+        }
+    }
+
+    public void checkPermissionLocation() {
+        Log.i("PERMISSION LOG", "Requesting telephony permissions.");
+
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, FINE_PERMISSION_REQUEST_CODE,
+                    Manifest.permission.ACCESS_FINE_LOCATION, true);
         } else {
             Log.i("PERMISSION LOG", "Telephony permission been granted.");
         }
@@ -350,11 +361,11 @@ public class mainMapActivity extends AppCompatActivity implements
             LocationCoordinatesService.LocationCoordinatesBinder locationCoordinatesBinder =
                     (LocationCoordinatesService.LocationCoordinatesBinder) binder;
             locationService = locationCoordinatesBinder.getLocationService();
-            signalBound = true;
+            locationBound = true;
         }
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            signalBound = false;
+            locationBound = false;
         }
     };
 

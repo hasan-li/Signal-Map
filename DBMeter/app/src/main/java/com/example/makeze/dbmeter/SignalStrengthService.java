@@ -43,6 +43,7 @@ public class SignalStrengthService extends Service {
             super.onSignalStrengthsChanged(signalStrength);
             mSignalStrength = signalStrength.getGsmSignalStrength();
             mSignalStrength = signalStrength.getCdmaDbm();
+            System.out.println("Here dragons are: "+mSignalStrength);
         }
     }
 

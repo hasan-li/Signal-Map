@@ -12,8 +12,8 @@ import android.os.IBinder;
 
 public class LocationCoordinatesService extends Service {
 
-    private double lat=404;
-    private double lon=404;
+    private Double lat;
+    private Double lon;
 
     private final IBinder binder = new LocationCoordinatesBinder();
     private static Location lastLocation = null;
@@ -48,22 +48,33 @@ public class LocationCoordinatesService extends Service {
             @Override
             public void onStatusChanged(String arg0, int arg1, Bundle bundle) {
             }
-
-            LocationManager locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         };
+            LocationManager locManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            try {
+                locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, listener);
+            } catch (SecurityException e){
+                System.out.println("NO PERMISSION FOR LOCATION");
+            }
     }
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
     }
 
-    public double[] getCoordinates(){
-        double [] array;
-        array = new double[2];
-        array[0] = lat;
-        array[1] = lon;
+    public double getLat(){
         System.out.println(lat+" !! "+lon);
-        return array;
+        if(lat!=null)
+            return lat;
+        else return 404;
     }
+
+    public double getLon(){
+        System.out.println(lat+" !! "+lon);
+        if(lon!=null)
+            return lon;
+        else return 404;
+    }
+
+
 
 }
