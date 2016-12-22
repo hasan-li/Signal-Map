@@ -38,12 +38,11 @@ public class UploaderClass extends AsyncTask<Void, Void, Integer>{
                 connection.connect();
 
                 res = connection.getResponseCode();
-                Log.i("chat", "+ ChatActivity - ответ сервера (200 - все ОК): "
+                Log.i("UpdaterLog", "+ server response (200 - everything ok): "
                         + res.toString());
 
             } catch (Exception e) {
-                Log.i("chat",
-                        "+ ChatActivity - ошибка соединения: " + e.getMessage());
+                Log.i("UpdaterLog", "+ connection error: " + e.getMessage());
 
             } finally {
                 connection.disconnect();
@@ -56,10 +55,10 @@ public class UploaderClass extends AsyncTask<Void, Void, Integer>{
             try {
                 if (result == 200) {
 
-                    Log.i("chat", "+ ChatActivity - сообщение успешно ушло.");
+                    Log.i("UpdaterLog", " data successfully sent.");
                 }
             } catch (Exception e) {
-                Log.i("chat", "+ ChatActivity - ошибка передачи сообщения:\n"
+                Log.i("UpdaterLog", " - transmission error:\n"
                         + e.getMessage());
             } finally {
 

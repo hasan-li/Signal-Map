@@ -136,7 +136,7 @@ public class mainMapActivity extends AppCompatActivity implements
                             "&s="+signalService.getSignalStrengthDBm(); // http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?x=XXX.XXXXXX&y=YYY.YYYYYY&s=ZZZ
                     new UploaderClass(params).execute();
                 }
-                handler.postDelayed(this, 1000);
+                handler.postDelayed(this, 120000);
             }
         });
     }
