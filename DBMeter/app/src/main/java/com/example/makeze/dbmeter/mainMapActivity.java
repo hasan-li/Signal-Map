@@ -42,6 +42,9 @@ public class mainMapActivity extends AppCompatActivity implements
 
     private Context mContext;
     private static final int COARSE_PERMISSION_REQUEST_CODE = 2;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private static final int FINE_PERMISSION_REQUEST_CODE = 1;
+    private static final int WRITE_PERMISSION_REQUEST_CODE = 3;
     private GoogleMap mMap;
     LocationCoordinates locationCoordinates;
     double latitude;
@@ -83,6 +86,7 @@ public class mainMapActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main_map);
         checkPermissionTelephony();
         checkPermissionLocation();
+        checkPermissionIO();
 
         Button mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
         mainMenuSetup(mainMenuButton);
@@ -135,8 +139,9 @@ public class mainMapActivity extends AppCompatActivity implements
                             "&y="+latTrim+
                             "&s="+signalService.getSignalStrengthDBm(); // http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?x=XXX.XXXXXX&y=YYY.YYYYYY&s=ZZZ
                     new UploaderClass(params).execute();
+                    new DownloaderClass().execute();
                 }
-                handler.postDelayed(this, 120000);
+                handler.postDelayed(this, 10000);
             }
         });
     }
@@ -211,9 +216,6 @@ public class mainMapActivity extends AppCompatActivity implements
         registerForContextMenu(v);
     }
 
-    // stuff for locaiton service goes here
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private static final int FINE_PERMISSION_REQUEST_CODE = 1;
     /**
      * Flag indicating whether a requested permission has been denied after returning in
      * {@link #onRequestPermissionsResult(int, String[], int[])}.
@@ -263,6 +265,7 @@ public class mainMapActivity extends AppCompatActivity implements
             mPermissionDenied = true;
         }
     }
+
 
     @Override
     protected void onResumeFragments() {
@@ -325,6 +328,19 @@ public class mainMapActivity extends AppCompatActivity implements
             // Permission to access the location is missing.
             PermissionUtils.requestPermission(this, FINE_PERMISSION_REQUEST_CODE,
                     Manifest.permission.ACCESS_FINE_LOCATION, true);
+        } else {
+            Log.i("PERMISSION LOG", "Telephony permission been granted.");
+        }
+    }
+
+    public void checkPermissionIO() {
+        Log.i("PERMISSION LOG", "Requesting telephony permissions.");
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, WRITE_PERMISSION_REQUEST_CODE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE, true);
         } else {
             Log.i("PERMISSION LOG", "Telephony permission been granted.");
         }
