@@ -123,151 +123,114 @@ void getData(int number) {
 
 
 
-/*
- * looks for a string inside given file
- * returns 0 if string was not found
- * returns 1 if string was found
-*/
-int * search_in_file(char *fname, char *str, int s) {
-	FILE *fp;
-    int line_num = 1;
-	int find_result = 0;
-	char temp[1024];
-    
-    
-    printf("<br />in search_in_file");
-    printf("<br />in fname: %s", fname);
-    printf("<br />in str: %s", str);
-    printf("<br />in s: %d", s);
-    
-    /*
-     * ret[0] - 0|1
-     * ret[1] - old value of signal strength (line_s)
-     * ret[2] - line num
-     * ret[4] - error if 1
-    */
-    static int ret[4];
-    
-//	gcc user
-	if((fp = fopen(fname, "r")) == NULL) {
-		ret[3] = 1;
-        return ret;
-	}
 
-	while(fgets(temp, 1024, fp) != NULL) {
-		if((strstr(temp, str)) != NULL) {
-            
-//            printf("%s", temp);
-            
-            
-//            splitting the line by | to get strength
-            int i = 0;
-            char *p = strtok (temp, "|");
-            char *array[4];
 
-            while (p != NULL){
-                array[i++] = p;
-                p = strtok (NULL, "|");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void createFileWitheData(char *fname, int x, int y, int s){
+    
+    int r = 2000, c = 2000, i, j;
+ 
+    int *layer[r];
+    for (i = 0; i < r; i++){
+         layer[i] = (int *)malloc(c * sizeof(int));
+    }
+    
+//    assigning values of array to 0
+//    layer[i][j] is same as *(*(arr+i)+j)
+    for (i = 0; i <  r; i++){
+        for (j = 0; j < c; j++){
+            layer[i][j] = 0;
+        }
+    }
+     
+    
+    i, j = 0;
+    
+    FILE *fp;
+    fp = fopen(fname, "w");
+    
+    layer[x][y] = s;
+    if (fp) {
+        for (i = 0; i < 2000; i++){
+            for (j = 0; j < 2000; j++){
+                fprintf(fp, "%d ", layer[i][j]);
             }
-            
-            /* casting and comparing the strength of 
-             * signal which we get to strength which 
-             * we already have in our file
-             */
-            int line_s = (int)atof(array[2]);
-            
-            if (line_s == s){
-                
-                printf("<br />line_s == s");
-                
-                ret[0] = 1;
-                ret[1] = 0;
-                ret[2] = 0;
-            } else {
-                ret[0] = 1;
-                ret[1] = line_s;
-                ret[2] = line_num;
-                
-                printf("<br />line_s != s");
-            }
-            find_result++;
-		}
-        line_num++;
-	}
-
-	if(find_result == 0) {
-        ret[0] = 0;
-        ret[1] = 0;
-        ret[2] = 0;
-	}
-	
-	//Close the file if still open.
-	if(fp) {
-		fclose(fp);
-	}
-    
-    
-   	return ret;
+        }
+        
+        fclose(fp);
+    } else {
+        fprintf(stderr,"error opening file \"%s\"\n", fname);
+        perror("error opening file.");
+    }
 }
 
 
 
-
-void removeLineFromFile(char *filename, int del_line){
-    FILE *fp1, *fp2;
-    char c;
-    int temp = 1;
+void updateFileWitheData(char *fname, int x, int y, int s){
     
-    printf("<br /> del_line: %d", del_line);
-    
-    //open file in read mode
-    fp1 = fopen(filename, "r");
-    c = getc(fp1);
-    printf("<br /> c1: %c", c);
-    //until the last character of file is obtained
-    while (c != EOF) {
-        printf("<br /> c: %c", c);
-        //print current character and read next character
-        c = getc(fp1);
+    int r = 2000, c = 2000, i, j;
+    int *layer[r];
+    FILE *fp;
+    for (i = 0; i < r; i++){
+         layer[i] = (int *)malloc(c * sizeof(int));
     }
-    //PROBLEM HERE: ADDING RANDOM CHAR AT THE END OF FILE
     
-    //rewind
-    rewind(fp1);
-    //open new file in write mode
-    fp2 = fopen("data/copy.dat", "w");
-    c = getc(fp1);
-    printf("<br /> c2: %c", c);
-    rewind(fp1);
-    while (c != EOF) {
-        c = getc(fp1);
-        printf("<br />inside while. c: %c, temp: %d", c, temp);
-        if (c == '\n'){
-            temp++;
+    
+    fp=fopen(fname, "wr");
+    
+    if (fp) {
+        for(i = 0; i < 2000; i++) {
+            for (j = 0 ; j < 2000; j++) {
+                fscanf(fp, "%d", &layer[i][j]);
+            }
+            fprintf(fp, "\n");
         }
-        //except the line to be deleted
-        if (temp != del_line) {
-            //copy all lines in file copy.data
-            putc(c, fp2); 
-        }
+        
+    } else {
+        fprintf(stderr,"error opening file \"%s\"\n", fname);
+        perror("error opening file.");
     }
-    //close both files
-    fclose(fp1);
-    fclose(fp2);
-    //remove original file
-    remove(filename);
-    //rename the file data/copy.dat to original name
-    rename("data/copy.dat", filename);
-    printf("<br /> The contents of file after being modified are as  follows:\n");
-    fp1 = fopen(filename, "r");
-    c = getc(fp1);
-    while (c != EOF) {
-        printf("%c", c);
-        c = getc(fp1);
-    }
-    fclose(fp1);
     
+    
+//    writing back updated array
+    i, j = 0;
+    printf("<br />s in arr before mod = %d <br /> ", layer[x][y]);
+    layer[x][y] = s;
+    
+    printf("s in arr = %d <br />", layer[x][y]);
+    if (fp) {
+        for (i = 0; i < 2000; i++){
+            for (j = 0; j < 2000; j++){
+                fprintf(fp, "%d ", layer[i][j]);
+            }
+        }
+        
+        
+    }
+    else {
+        fprintf(stderr,"error opening file \"%s\"\n", fname);
+        perror("error opening file.");
+    }
+    
+    
+    fclose(fp);
 }
+
+
+
 
 
 
@@ -351,6 +314,8 @@ int main (void){
     char *coorLine, *coorLine_strength, temp_coorline[30], temp_coorline_strength[30];
     coord_step_val = locateStrength(x_mantissa, y_mantissa);
     
+    printf("0 - %d <br /> 1 - %d <br />", coord_step_val[0], coord_step_val[1]);
+    
     sprintf(temp_coorline, "%d|%d|", coord_step_val[0], coord_step_val[1]);
 
     
@@ -365,43 +330,18 @@ int main (void){
     char* folder_name = generateFolderName(x_decimal, y_decimal, x_mantissa, y_mantissa);
     
     
-    
-    
-    
-    search_res = search_in_file(folder_name, coorLine, s);
-    /*
-     * search_res[0] - 0|1
-     * search_res[1] - old value of signal strength (line_s)
-     * search_res[2] - line num
-    */
-    
-    
-    printf("<br /> new search_res[0]: %d", search_res[0]);
-    printf("<br /> new search_res[1]: %d", search_res[1]);
-    printf("<br /> new search_res[2]: %d", search_res[2]);
-    
-    if (search_res[0]){
-        if (search_res[1] != 0){
-            printf("<br /> match found");
-            removeLineFromFile(folder_name, search_res[2]);
-            
-            //averaging signal strength
-            s = 0.8*s + 0.2*search_res[1];
-            printf("<br /> new s: %d", s);
-            
-            //addind new value of coorLine with contcatenated s
-            sprintf(temp_coorline_strength, "%d|%d|%d", coord_step_val[0], coord_step_val[1], s);
-            coorLine_strength = temp_coorline_strength;
-            printf("<br /> new coorLine_strength: %s", coorLine_strength);
-            editFile(folder_name, coorLine_strength); 
-        }
+    if( access( folder_name, F_OK ) != -1 ) {
+        printf("file exists");
+        updateFileWitheData(folder_name, coord_step_val[0], coord_step_val[1], s);
+    } else {
+        printf("file doesn't exist");
+        createFileWitheData(folder_name, coord_step_val[0], coord_step_val[1], s);
     }
-    else {
-        
-        sprintf(temp_coorline_strength, "%d|%d|%d", coord_step_val[0], coord_step_val[1], s);
-        coorLine_strength = temp_coorline_strength;
-        editFile(folder_name, coorLine_strength);
-    }
+    
+    
+    
+    
+
     
     
     
