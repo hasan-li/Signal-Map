@@ -36,13 +36,32 @@ Note: xm and ym can only have values 3|6|9.
 
 Dat file stores values in following format:
 
-    0.000000|0.000000|signalStrength
-    0.000150|0.000000|signalStrength
-    0.000300|0.000000|signalStrength
-                ...
-    0.000000|0.000150|signalStrength
-    0.000000|0.000300|signalStrength
-    0.000000|0.000450|signalStrength
-    0.000000|0.000600|signalStrength
-    --------------------------------
-       x    |    y   |signalStrength
+    64 52 34 -45 -82 441 12 0 121 7 -14 .. 0 121 0 21 -147
+    64 52 34 -45 -82 441 12 0 121 7 -14 .. 0 121 0 21 -147
+    64 52 34 -45 -82 441 12 0 121 7 -14 .. 0 121 0 21 -147
+    64 52 34 -45 -82 441 12 0 121 7 -14 .. 0 121 0 21 -147
+    64 52 34 -45 -82 441 12 0 121 7 -14 .. 0 121 0 21 -147
+    64 52 34 -45 -82 441 12 0 121 7 -14 .. 0 121 0 21 -147
+    
+    
+Each dat file is 2000*2000 matrix with 4,000,000 values of signal strength. 
+
+Value of strength can be found from mantissa part of x and y:
+
+    int * locateStrength(double x, double y){
+        double step = 0.000150;
+        static int coord_step_val[2];
+
+        coord_step_val[0] =(int)floor(x/step);
+        coord_step_val[1] =(int)floor(y/step);
+
+        return coord_step_val;
+    }
+    
+It takes less than 5ms to create new file with one value or to update existing file.
+
+
+#TODOs
+
+1. Optimize code
+2. Add security check on server side
