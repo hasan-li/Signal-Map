@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
-
+#include <ctype.h>
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int updateSignalStrength(){
@@ -169,7 +169,6 @@ void createFileWitheData(char *fname, int x, int y, int s){
                 fprintf(fp, "%d ", layer[i][j]);
             }
         }
-        
         fclose(fp);
     } else {
         fprintf(stderr,"error opening file \"%s\"\n", fname);
@@ -196,7 +195,6 @@ void updateFileWitheData(char *fname, int x, int y, int s){
             for (j = 0 ; j < 2000; j++) {
                 fscanf(fp, "%d", &layer[i][j]);
             }
-            fprintf(fp, "\n");
         }
         
     } else {
@@ -207,8 +205,9 @@ void updateFileWitheData(char *fname, int x, int y, int s){
     
 //    writing back updated array
     i, j = 0;
+    layer[x][y] = layer[x][y] * 0.2 + s * 0.8;
     printf("<br />s in arr before mod = %d <br /> ", layer[x][y]);
-    layer[x][y] = s;
+//    layer[x][y] = s;
     
     printf("s in arr = %d <br />", layer[x][y]);
     if (fp) {
@@ -279,6 +278,16 @@ int main (void){
     
     double x, y;
     int s;
+    
+
+    if((isdigit(queryData[0])) && (isdigit(queryData[1])) && (isdigit(queryData[2]))) {
+      //valid input
+    }
+    else
+    {
+      //invalid input
+    }
+    
 //    retriving data from query
     x = atof(queryData[0]);
     y = atof(queryData[1]);
@@ -340,25 +349,6 @@ int main (void){
     
     
     
-    
-
-    
-    
-    
-    
-//    int line_exists = search_in_file(folder_name, "55555");
-    
-//    int temp_unt = search_in_file(folder_name, "55555");
-    
-//    printf("%d", temp_unt);
-    
-//    if (temp_unt == 0){
-//        editFile(x, y, s);
-//    } else {
-//        printf("exists");
-//    }
-//    editFile(x, y, s);
-//    getData(x);
     
     
 	return 0;
