@@ -51,4 +51,10 @@ public class SignalStrengthService extends Service {
         System.out.println("!! "+ mSignalStrength);
         return ((2 * mSignalStrength) - 113);
     }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        stopSelf();
+    }
 }
