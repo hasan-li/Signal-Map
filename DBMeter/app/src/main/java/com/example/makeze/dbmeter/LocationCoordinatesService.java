@@ -54,7 +54,11 @@ public class LocationCoordinatesService extends Service {
             LocationManager locManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
             try {
                 provider = locManager.getBestProvider(new Criteria(), false);
-                locManager.requestLocationUpdates(provider, 1000, 1, listener);
+                if(provider!=null) {
+                    locManager.requestLocationUpdates(provider, 1000, 1, listener);
+                } else {
+                    provider = "gps";
+                }
             } catch (SecurityException e){
                 System.out.println("NO PERMISSION FOR LOCATION");
             }
@@ -78,6 +82,11 @@ public class LocationCoordinatesService extends Service {
         else return 404;
     }
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        stopSelf();
+    }
 
 
 }

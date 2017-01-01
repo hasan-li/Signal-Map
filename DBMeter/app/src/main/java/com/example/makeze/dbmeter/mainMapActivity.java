@@ -84,8 +84,8 @@ public class mainMapActivity extends AppCompatActivity implements
         this.mContext = this;
         // create a folder for storage
         setContentView(R.layout.activity_main_map);
-        checkPermissionTelephony();
-        checkPermissionLocation();
+        //checkPermissionTelephony();
+        //checkPermissionLocation();
         checkPermissionIO();
 
         Button mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
@@ -111,18 +111,21 @@ public class mainMapActivity extends AppCompatActivity implements
         startActivity(intent);*/
         //
         // -------------------------------------------------------
-        updateServer();
+        //updateServer();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
         // intent service for signal strength
         Intent signalStrengthIntent = new Intent(this, SignalStrengthService.class);
         bindService(signalStrengthIntent, connectionToSignalStrengthIntent, Context.BIND_AUTO_CREATE);
         // intent service for coordinates
         Intent locationCoordinatesIntent = new Intent(this, LocationCoordinatesService.class);
         bindService(locationCoordinatesIntent, connectionToLocationCoordinatesIntent, Context.BIND_AUTO_CREATE);
+        updateServer();
+        getImage();
     }
 
     private void updateServer(){
@@ -135,11 +138,35 @@ public class mainMapActivity extends AppCompatActivity implements
                     String lonTrim = String.format("%.6f", locationService.getLongitude()).replace(',','.');
 
                     signalService.getSignalStrengthDBm();
-                    String params = "x="+lonTrim+
-                            "&y="+latTrim+
+                    String params = "x="+latTrim+
+                            "&y="+lonTrim+
                             "&s="+signalService.getSignalStrengthDBm(); // http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?x=XXX.XXXXXX&y=YYY.YYYYYY&s=ZZZ
-                    new UploaderClass(params).execute();
-                    new DownloaderClass().execute();
+                    if(latTrim!="404.000000"){
+                        //new LinkDownloaderClass(params).execute();
+                        new UploaderClass(params).execute();
+                    }
+                    //new ImageDownloaderClass().execute();
+                }
+                handler.postDelayed(this, 10000);
+            }
+        });
+    }
+
+    private void getImage(){
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (locationService != null && signalService != null) {
+                    String latTrim = String.format("%.6f", locationService.getLatitude()).replace(',','.');
+                    String lonTrim = String.format("%.6f", locationService.getLongitude()).replace(',','.');
+
+                    signalService.getSignalStrengthDBm();
+                    String params = "x="+latTrim+
+                            "&y="+lonTrim; // http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?x=XXX.XXXXXX&y=YYY.YYYYYY
+                    if(params!="x=404.000000&y=404.000000"){
+                        new LinkDownloaderClass(params).execute();
+                    }
                 }
                 handler.postDelayed(this, 10000);
             }

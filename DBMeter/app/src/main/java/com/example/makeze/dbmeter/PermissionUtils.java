@@ -1,6 +1,7 @@
 package com.example.makeze.dbmeter;
 
 import android.*;
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -32,7 +33,12 @@ public abstract class PermissionUtils {
                     .show(activity.getSupportFragmentManager(), "dialog");
         } else {
             // Location permission has not been granted yet, request it.
-            ActivityCompat.requestPermissions(activity, new String[]{permission}, requestId);
+
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE}, requestId);
 
         }
     }
@@ -146,7 +152,11 @@ public abstract class PermissionUtils {
                         public void onClick(DialogInterface dialog, int which) {
                             // After click on Ok, request the permission.
                             ActivityCompat.requestPermissions(getActivity(),
-                                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                                    new String[]{
+                                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                                            Manifest.permission.ACCESS_FINE_LOCATION,
+                                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                    },
                                     requestCode);
                             // Do not finish the Activity while requesting permission.
                             mFinishActivity = false;
