@@ -8,6 +8,7 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.Toast;
 import android.content.pm.PackageManager;
@@ -88,7 +89,7 @@ public class mainMapActivity extends AppCompatActivity implements
         //checkPermissionLocation();
         checkPermissionIO();
 
-        Button mainMenuButton = (Button) findViewById(R.id.mainMenuButton);
+        ImageButton mainMenuButton = (ImageButton) findViewById(R.id.mainMenuButton);
         mainMenuSetup(mainMenuButton);
 
         locationCoordinates = new LocationCoordinates(mainMapActivity.this);

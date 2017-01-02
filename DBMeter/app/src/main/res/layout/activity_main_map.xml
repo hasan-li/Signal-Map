@@ -26,15 +26,6 @@ android:orientation="vertical" >
             android:layout_toRightOf="@+id/transparency_text"
             android:layout_marginTop="5dp"/>
 
-        <Button
-            android:id="@+id/mainMenuButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/mainButtonText"
-            android:layout_marginTop="30dp"
-            android:layout_marginLeft="5dp"
-            />
-
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:map="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
@@ -44,6 +35,18 @@ android:orientation="vertical" >
             android:layout_height="match_parent"
             tools:context="com.example.makeze.dbmeter.mainMapActivity"
             android:layout_marginTop="25dp"/>
+
+
+        <ImageButton
+            android:id="@+id/mainMenuButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="35dp"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/gear"
+            android:scaleType="fitCenter"
+            android:drawable="@android:color/white"
+            />
 
     </RelativeLayout>
 
