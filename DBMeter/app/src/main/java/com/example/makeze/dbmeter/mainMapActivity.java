@@ -87,7 +87,7 @@ public class mainMapActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main_map);
         //checkPermissionTelephony();
         //checkPermissionLocation();
-        checkPermissionIO();
+        checkPermissions();
 
         ImageButton mainMenuButton = (ImageButton) findViewById(R.id.mainMenuButton);
         mainMenuSetup(mainMenuButton);
@@ -335,33 +335,7 @@ public class mainMapActivity extends AppCompatActivity implements
     public void onGroundOverlayClick(GroundOverlay groundOverlay) {
     }
 
-    public void checkPermissionTelephony() {
-        Log.i("PERMISSION LOG", "Requesting telephony permissions.");
-
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission to access the location is missing.
-            PermissionUtils.requestPermission(this, COARSE_PERMISSION_REQUEST_CODE,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION, true);
-        } else {
-            Log.i("PERMISSION LOG", "Telephony permission been granted.");
-        }
-    }
-
-    public void checkPermissionLocation() {
-        Log.i("PERMISSION LOG", "Requesting telephony permissions.");
-
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission to access the location is missing.
-            PermissionUtils.requestPermission(this, FINE_PERMISSION_REQUEST_CODE,
-                    Manifest.permission.ACCESS_FINE_LOCATION, true);
-        } else {
-            Log.i("PERMISSION LOG", "Telephony permission been granted.");
-        }
-    }
-
-    public void checkPermissionIO() {
+    public void checkPermissions() {
         Log.i("PERMISSION LOG", "Requesting telephony permissions.");
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
