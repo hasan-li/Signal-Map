@@ -37,9 +37,7 @@ import android.os.Handler;
 public class mainMapActivity extends AppCompatActivity implements
         GoogleMap.OnMyLocationButtonClickListener,
         OnMapReadyCallback,
-        ActivityCompat.OnRequestPermissionsResultCallback,
-        SeekBar.OnSeekBarChangeListener,
-        GoogleMap.OnGroundOverlayClickListener {
+        ActivityCompat.OnRequestPermissionsResultCallback{
 
     private Context mContext;
     private static final int COARSE_PERMISSION_REQUEST_CODE = 2;
@@ -50,16 +48,6 @@ public class mainMapActivity extends AppCompatActivity implements
     LocationCoordinates locationCoordinates;
     double latitude;
     double longitude;
-
-    //hhOne
-    private static final LatLng SW1 = new LatLng(53.51313, 9.89507); //bottom right corner of the image
-    private static final LatLng NE1 = new LatLng(53.59392, 10.12355); //top left corner of the image
-
-    private BitmapDescriptor overlayImage;
-    private GroundOverlay mGroundOverlay;
-
-    private static final int TRANSPARENCY_MAX = 100;
-    private SeekBar mTransparencyBar;
 
     //signal strength vars
 
@@ -90,16 +78,12 @@ public class mainMapActivity extends AppCompatActivity implements
         ImageButton mainMenuButton = (ImageButton) findViewById(R.id.mainMenuButton);
         mainMenuSetup(mainMenuButton);
 
-        locationCoordinates = new LocationCoordinates(mainMapActivity.this);
-
-        mTransparencyBar = (SeekBar) findViewById(R.id.transparencySeekBar);
-        mTransparencyBar.setMax(TRANSPARENCY_MAX);
-        mTransparencyBar.setProgress(0);
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        locationCoordinates = new LocationCoordinates(mainMapActivity.this);
 
         // -------------------------------------------------------
         // HAS TO BE CHANGED INTO AN INTENT SERVICE
@@ -179,8 +163,6 @@ public class mainMapActivity extends AppCompatActivity implements
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        mMap.setOnGroundOverlayClickListener(this);
-
         latitude = locationCoordinates.getLatitude();
         longitude = locationCoordinates.getLongitude();
 
@@ -197,15 +179,7 @@ public class mainMapActivity extends AppCompatActivity implements
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
 
-        overlayImage = BitmapDescriptorFactory.fromResource(R.drawable.hh_one);
-        LatLngBounds bound = new LatLngBounds(SW1,NE1);
-        mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
-                .image(overlayImage)
-                .positionFromBounds(bound)
-                .transparency(0.2f));
-
-        mTransparencyBar.setOnSeekBarChangeListener(this);
-        mMap.setContentDescription("Google Map with ground overlay.");
+        //mTransparencyBar.setOnSeekBarChangeListener(this);
     }
 
 
@@ -314,27 +288,6 @@ public class mainMapActivity extends AppCompatActivity implements
                 .newInstance(true).show(getSupportFragmentManager(), "dialog");
     }
 
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if (mGroundOverlay != null) {
-            mGroundOverlay.setTransparency((float) progress / (float) TRANSPARENCY_MAX);
-        }
-
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
-    public void onGroundOverlayClick(GroundOverlay groundOverlay) {
-    }
 
     public void checkPermissions() {
         Log.i("PERMISSION LOG", "Requesting telephony permissions.");
