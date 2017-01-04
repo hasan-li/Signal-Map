@@ -151,7 +151,7 @@ public class HamburgOverlay extends AppCompatActivity implements
 
     private void makeOverlay(){
 
-        LatLngBounds bound = new LatLngBounds(SW, NE);
+        LatLngBounds bound;
 
         //coord. names are changed to image name. if the image name is different, go to this loop.
         if (!oldImageToOverlay.equals(imageToOverlay)) {
