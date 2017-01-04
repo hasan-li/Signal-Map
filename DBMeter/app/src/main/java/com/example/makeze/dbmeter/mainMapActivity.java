@@ -123,8 +123,11 @@ public class mainMapActivity extends AppCompatActivity implements
         // intent service for coordinates
         Intent locationCoordinatesIntent = new Intent(this, LocationCoordinatesService.class);
         bindService(locationCoordinatesIntent, connectionToLocationCoordinatesIntent, Context.BIND_AUTO_CREATE);
-        updateServer();
-        getImage();
+
+        if (permissionsGranted) {
+            updateServer();
+            getImage();
+        }
     }
 
     private void updateServer(){
