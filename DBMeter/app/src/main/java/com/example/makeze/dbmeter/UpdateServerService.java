@@ -43,10 +43,9 @@ public class UpdateServerService extends Service {
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-            new DownloadWebpageTask().execute("http://www.google.com/");
+            new DownloadWebpageTask().execute();
         } else {
-            //textView.setText("No network connection available.");
-            System.out.println("MAKEZE! Server update was called!");
+            Log.d("UpdateServer log", "Server update was called!");
         }
 
     }
@@ -62,18 +61,15 @@ public class UpdateServerService extends Service {
                 return "Unable to retrieve web page. URL may be invalid.";
             }
         }
-        // onPostExecute displays the results of the AsyncTask.
+
         @Override
         protected void onPostExecute(String result) {
-            System.out.println("MAKEZE! Server update completed!");
+            Log.d("UpdateServer log", "Server update completed!");
         }
     }
 
     public String updateServer(String myurl) throws IOException {
         InputStream is = null;
-        //myurl = "http://www.google.com/";
-        // Only display the first 500 characters of the retrieved
-        // web page content.
         int len = 500;
 
         try {
@@ -86,7 +82,7 @@ public class UpdateServerService extends Service {
             // Starts the query,
             conn.connect();
             int response = conn.getResponseCode();
-            Log .d("SERVER UPDATER LOG", "The response is: " + response);
+            Log .d("UpdateServer log", "The response is: " + response);
             is = conn.getInputStream();
 
             // Convert the InputStream into a string

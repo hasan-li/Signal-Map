@@ -44,7 +44,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".HamburgOverlay" />
-        <activity android:name=".CommunicationActivity" />
         <activity android:name=".FetchFileTree" />
 
         <service

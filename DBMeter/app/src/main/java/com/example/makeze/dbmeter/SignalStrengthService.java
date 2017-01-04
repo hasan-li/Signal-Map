@@ -42,14 +42,13 @@ public class SignalStrengthService extends Service {
         public void onSignalStrengthsChanged(SignalStrength signalStrength) {
             super.onSignalStrengthsChanged(signalStrength);
             //mSignalStrength = signalStrength.getGsmSignalStrength();
-            mSignalStrength = signalStrength.getCdmaDbm();
-            System.out.println("Here dragons are: "+mSignalStrength);
+            mSignalStrength = (2 * signalStrength.getCdmaDbm())- 113;
         }
     }
 
     public int getSignalStrengthDBm(){
         System.out.println("!! "+ mSignalStrength);
-        return ((2 * mSignalStrength) - 113);
+        return mSignalStrength;
     }
 
     @Override

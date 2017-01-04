@@ -68,12 +68,12 @@ public class mainMapActivity extends AppCompatActivity implements
 
     private LocationCoordinatesService locationService;
 
-
     //server update vars
 
     private UpdateServerService serverUpdate;
     private boolean signalBound = false;
     private boolean locationBound = false;
+    private boolean permissionsGranted = false;
 
     private UploaderClass serverUploader;
 
@@ -85,8 +85,6 @@ public class mainMapActivity extends AppCompatActivity implements
         this.mContext = this;
         // create a folder for storage
         setContentView(R.layout.activity_main_map);
-        //checkPermissionTelephony();
-        //checkPermissionLocation();
         checkPermissions();
 
         ImageButton mainMenuButton = (ImageButton) findViewById(R.id.mainMenuButton);
@@ -344,6 +342,7 @@ public class mainMapActivity extends AppCompatActivity implements
             PermissionUtils.requestPermission(this, WRITE_PERMISSION_REQUEST_CODE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE, true);
         } else {
+            permissionsGranted = true;
             Log.i("PERMISSION LOG", "Telephony permission been granted.");
         }
     }
