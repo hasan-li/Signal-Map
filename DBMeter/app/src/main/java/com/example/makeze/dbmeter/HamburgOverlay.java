@@ -52,6 +52,7 @@ public class HamburgOverlay extends AppCompatActivity implements
 
 
     LocationCoordinates locationCoordinates;
+    LocationCoordinatesService locationService;
     LatLng currentLocation;
     double latitude;
     double longitude;
@@ -74,6 +75,7 @@ public class HamburgOverlay extends AppCompatActivity implements
     String imageName;
     String imageToOverlay= null;
     String oldImageToOverlay= "";
+    android.os.Handler customHandler;
 
 
     @Override
@@ -114,7 +116,92 @@ public class HamburgOverlay extends AppCompatActivity implements
 
         mapFragment.getMapAsync(this);
 
+        customHandler = new android.os.Handler();
+        customHandler.postDelayed(updateTimerThread, 0);
+
     }
+
+    private Runnable updateTimerThread = new Runnable()
+    {
+        public void run()
+        {
+            System.out.println("DEBUG: Handler running");
+            LatLngBounds bound;
+
+            File files[] = dir.listFiles();
+
+            for(File f : files){
+                String filePath= f.getPath();
+                System.out.println("FILENAMES: "+f.getPath());
+
+                imageName=filePath.substring(filePath.lastIndexOf("/")+1);
+                System.out.println("imageName: "+imageName);
+
+                Pattern p = Pattern.compile("(.*?).bmp");
+                Matcher m = p.matcher(imageName);
+
+                while (m.find()) {
+
+                    String tempName = m.group(1);
+                    fileNameExtracted = tempName.split("_");
+                    System.out.println("fileNameExtracted: "+ Arrays.toString(fileNameExtracted));
+                }
+
+                try{
+                    if (latOne == Double.parseDouble(fileNameExtracted[0]) && latTwo == Double.parseDouble(fileNameExtracted[2])
+                            && lngOne == Double.parseDouble(fileNameExtracted[1]) && lngTwo == Double.parseDouble(fileNameExtracted[3])) {
+
+                        imageFoundInDirectory = true;
+                        imageToOverlay = fileNameExtracted[0] + "_" + fileNameExtracted[1] + "_" + fileNameExtracted[2] + "_" + fileNameExtracted[3] + ".bmp";
+                        System.out.println("DEBUG: Hamburg Overlay found for: " + Arrays.toString(fileNameExtracted));
+                        System.out.println("DEBUG: IMAGE NEW NAME: " + imageToOverlay);
+                        System.out.println("DEBUG: IMAGE OLD NAME: " + oldImageToOverlay);
+                        SW = new LatLng(latOne, lngOne);
+                        NE = new LatLng(latTwo, lngTwo);
+                        //oldImageToOverlay = imageToOverlay;
+                    } else {
+                        System.out.println("DEBUG: Hamburg Overlay NOT found for:  " + Arrays.toString(fileNameExtracted));
+
+                    }
+                }catch(Exception e){
+                    Toast.makeText(getApplicationContext(), "Checking image",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            System.out.println("DEBUG: Image coordinates are: " + latOne+"_"+lngOne+"_"+latTwo+"_"+lngTwo);
+
+            try{
+                //coord. names are changed to image name. if the image name is different, go to this loop.
+                if (!oldImageToOverlay.equals(imageToOverlay)) {
+                    //if the image is in directory, use that image for overlay
+                    if (imageFoundInDirectory) {
+                        System.out.println("DEBUG: DRAWING OVERLAY " + imageFoundInDirectory + " with image: " + imageToOverlay);
+                        Toast.makeText(getApplicationContext(), "Image found in app directory.", Toast.LENGTH_LONG).show();
+
+                        bound = new LatLngBounds(SW, NE);
+                        image = BitmapDescriptorFactory.fromPath(dir + "/" + imageToOverlay);
+                        mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
+                                .image(image)
+                                .positionFromBounds(bound)
+                                .transparency(0.1f));
+
+                      oldImageToOverlay = imageToOverlay;
+                    }
+                    //if it is not is directory, download the image
+                    else {
+                        System.out.println("DEBUG: DOWNLOADING IMAGE ");
+                        Toast.makeText(getApplicationContext(), "Image is downloading", Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            }catch(Exception e){
+                Log.i("DEBUG", "image name error");
+            }
+
+            customHandler.postDelayed(this, 10000);
+        }
+    };
 
 
     @Override
@@ -133,7 +220,6 @@ public class HamburgOverlay extends AppCompatActivity implements
 
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
-
         /*
         //display this default overlay when there is no signal strength image to display
         image = BitmapDescriptorFactory.fromResource(R.drawable.hh_one);
@@ -143,88 +229,7 @@ public class HamburgOverlay extends AppCompatActivity implements
                 .transparency(0.2f));
         */
 
-        makeOverlay();
-
         mTransparencyBar.setOnSeekBarChangeListener(this);
-    }
-
-
-    private void makeOverlay(){
-
-        LatLngBounds bound;
-
-        //coord. names are changed to image name. if the image name is different, go to this loop.
-        if (!oldImageToOverlay.equals(imageToOverlay)) {
-
-            //if the image is in directory, use that image for overlay
-            if (imageFoundInDirectory) {
-                System.out.println("TEST: DRAWING OVERLAY " + imageFoundInDirectory + " with image: " + imageToOverlay);
-                Toast.makeText(getApplicationContext(), "Image found in app directory.", Toast.LENGTH_LONG).show();
-
-                bound = new LatLngBounds(SW, NE);
-                image = BitmapDescriptorFactory.fromPath(dir + "/" + imageToOverlay);
-                mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
-                        .image(image)
-                        .positionFromBounds(bound)
-                        .transparency(0.1f));
-            }
-            //if it is not is directory, download the image
-            else {
-                System.out.println("TEST: DOWNLOADING IMAGE " + imageFoundInDirectory);
-                Toast.makeText(getApplicationContext(), "Image is downloading", Toast.LENGTH_LONG).show();
-            }
-            oldImageToOverlay = imageToOverlay;
-        }
-
-    }
-
-
-
-    public void showTree(File dir){
-        File files[] = dir.listFiles();
-
-        for(File f : files){
-            String filePath= f.getPath();
-            System.out.println("FILENAMES: "+f.getPath());
-
-            imageName=filePath.substring(filePath.lastIndexOf("/")+1);
-            System.out.println("imageName: "+imageName);
-
-            Pattern p = Pattern.compile("(.*?).bmp");
-            Matcher m = p.matcher(imageName);
-
-            while (m.find()) {
-
-                String tempName = m.group(1);
-                fileNameExtracted = tempName.split("_");
-                System.out.println("fileNameExtracted: "+ Arrays.toString(fileNameExtracted));
-            }
-
-            checkFilesOnDir();
-        }
-
-        System.out.println("TEST: Image coordinates are: " + latOne+"_"+lngOne+"_"+latTwo+"_"+lngTwo);
-    }
-
-
-    private void checkFilesOnDir(){
-        try{
-            if (latOne == Double.parseDouble(fileNameExtracted[0]) && latTwo == Double.parseDouble(fileNameExtracted[2])
-                    && lngOne == Double.parseDouble(fileNameExtracted[1]) && lngTwo == Double.parseDouble(fileNameExtracted[3])) {
-
-                imageFoundInDirectory = true;
-                imageToOverlay = fileNameExtracted[0] + "_" + fileNameExtracted[1] + "_" + fileNameExtracted[2] + "_" + fileNameExtracted[3] + ".bmp";
-                System.out.println("TEST: Hamburg Overlay found for: " + Arrays.toString(fileNameExtracted));
-                SW = new LatLng(latOne, lngOne);
-                NE = new LatLng(latTwo, lngTwo);
-                //oldImageToOverlay = imageToOverlay;
-            } else {
-                System.out.println("TEST: Hamburg Overlay NOT found for:  " + Arrays.toString(fileNameExtracted));
-
-            }
-        }catch(Exception e){
-            Toast.makeText(this, "Checking image",Toast.LENGTH_SHORT).show();
-        }
     }
 
 
@@ -296,7 +301,7 @@ public class HamburgOverlay extends AppCompatActivity implements
                     android.Manifest.permission.READ_EXTERNAL_STORAGE, true);
         } else {
             Log.i("PERMISSION LOG", "Readstuff permission been granted.");
-            showTree(dir);
+           // showTree(dir);
         }
     }
 
@@ -326,6 +331,7 @@ public class HamburgOverlay extends AppCompatActivity implements
 
     @Override
     public boolean onMyLocationButtonClick() {
+        Toast.makeText(this, "your current location", Toast.LENGTH_SHORT).show();
         return false;
     }
 }
