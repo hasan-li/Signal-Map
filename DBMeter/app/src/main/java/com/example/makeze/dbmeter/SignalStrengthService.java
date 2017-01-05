@@ -9,11 +9,14 @@ import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 
+import java.util.List;
+
 public class SignalStrengthService extends Service {
     private final IBinder binder = new SignalStrengthBinder();
     private TelephonyManager mTelephonyManager;
     private MyPhoneStateListener mPhoneStateListener;
     private int mSignalStrength = 0;
+    private List allCellInfo;
 
     public class SignalStrengthBinder extends Binder {
         SignalStrengthService getSignal() {
@@ -41,14 +44,18 @@ public class SignalStrengthService extends Service {
         @Override
         public void onSignalStrengthsChanged(SignalStrength signalStrength) {
             super.onSignalStrengthsChanged(signalStrength);
-            //mSignalStrength = signalStrength.getGsmSignalStrength();
             mSignalStrength = (2 * signalStrength.getCdmaDbm())- 113;
+            allCellInfo = mTelephonyManager.getAllCellInfo();
         }
     }
 
     public int getSignalStrengthDBm(){
         System.out.println("!! "+ mSignalStrength);
         return mSignalStrength;
+    }
+
+    public List getAllInfo(){
+        return allCellInfo;
     }
 
     @Override
