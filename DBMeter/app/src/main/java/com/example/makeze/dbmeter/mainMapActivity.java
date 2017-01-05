@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -31,12 +32,25 @@ import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import android.os.Handler;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class mainMapActivity extends AppCompatActivity implements
         GoogleMap.OnMyLocationButtonClickListener,
         OnMapReadyCallback,
+        SeekBar.OnSeekBarChangeListener,
+        GoogleMap.OnGroundOverlayClickListener,
         ActivityCompat.OnRequestPermissionsResultCallback{
 
     private Context mContext;
@@ -44,20 +58,39 @@ public class mainMapActivity extends AppCompatActivity implements
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final int FINE_PERMISSION_REQUEST_CODE = 1;
     private static final int WRITE_PERMISSION_REQUEST_CODE = 3;
+
     private GoogleMap mMap;
-    LocationCoordinates locationCoordinates;
-    double latitude;
-    double longitude;
+    private LocationCoordinates locationCoordinates;
+    private LatLng currentLocation;
+    private double latitude;
+    private double longitude;
+    private double latOne, latTwo;
+    private double lngOne, lngTwo;
+    private LatLng SW ; //bottom right corner of the image
+    private LatLng NE ; //top left corner of the image
+
+    private BitmapDescriptor image;
+    private GroundOverlay mGroundOverlay;
+
+    private int READ_EXTERNAL_STORAGE_CODE = 5;
+
+    File dir;
+    public boolean imageFoundInDirectory = false;
+    String[] fileNameExtracted;
+    String imageName;
+    String imageToOverlay= null;
+    String oldImageToOverlay= "";
+
+    private static final int TRANSPARENCY_MAX = 100;
+    private SeekBar mTransparencyBar;
 
     //signal strength vars
-
     private SignalStrengthService signalService;
     public int signalStrengthDBm = 0;
 
     private LocationCoordinatesService locationService;
 
     //server update vars
-
     private UpdateServerService serverUpdate;
     private boolean signalBound = false;
     private boolean locationBound = false;
@@ -85,15 +118,28 @@ public class mainMapActivity extends AppCompatActivity implements
 
         locationCoordinates = new LocationCoordinates(mainMapActivity.this);
 
-        // -------------------------------------------------------
-        // HAS TO BE CHANGED INTO AN INTENT SERVICE
-        // IF NOT, FRAGMENT IS COVERED BY AN EMPTY ACTIVITY
-        //
-        /*fetchFileTree intent starter
-        Intent intent = new Intent(this, FetchFileTree.class);
-        startActivity(intent);*/
-        //
-        // -------------------------------------------------------
+        latitude = locationCoordinates.getLatitude();
+        longitude = locationCoordinates.getLongitude();
+
+        currentLocation = new LatLng(latitude, longitude);
+
+        latitudeApproximator();
+        longitudeApproximator();
+
+        mTransparencyBar = (SeekBar) findViewById(R.id.transparencySeekBar);
+        mTransparencyBar.setMax(TRANSPARENCY_MAX);
+        mTransparencyBar.setProgress(0);
+
+        dir = new File("/storage/emulated/0/DBMeter/"); // create your own directory name and read it instead
+        //dir = new File(Environment.getExternalStorageDirectory()+"/DBMeter");
+        System.out.println("dir: "+dir);
+
+        // have the object build the directory structure, if needed.
+        if(!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        showTreePerm(dir);
     }
 
     @Override
@@ -158,26 +204,204 @@ public class mainMapActivity extends AppCompatActivity implements
         });
     }
 
+
+    private void makeOverlay(){
+
+        final Handler overlayHandler = new Handler();
+
+        overlayHandler.post(new Runnable() {
+
+            @Override
+            public void run()
+            {
+                System.out.println("DEBUG: Handler running");
+                LatLngBounds bound;
+
+                File files[] = dir.listFiles();
+
+                for(File f : files){
+                    String filePath= f.getPath();
+                    System.out.println("FILENAMES: "+f.getPath());
+
+                    imageName=filePath.substring(filePath.lastIndexOf("/")+1);
+                    System.out.println("imageName: "+imageName);
+
+                    Pattern p = Pattern.compile("(.*?).bmp");
+                    Matcher m = p.matcher(imageName);
+
+                    while (m.find()) {
+
+                        String tempName = m.group(1);
+                        fileNameExtracted = tempName.split("_");
+                        System.out.println("fileNameExtracted: "+ Arrays.toString(fileNameExtracted));
+                    }
+
+                    double tempLatitude = locationService.getLatitude();
+                    double tempLongitude = locationService.getLongitude();
+
+                    if(tempLatitude != latitude){
+                        latitude = tempLatitude;
+                        if(tempLongitude != longitude){
+                            longitude = tempLongitude;
+                        }
+                    }
+
+                    currentLocation = new LatLng(latitude, longitude);
+
+                    try{
+                        if (latOne == Double.parseDouble(fileNameExtracted[0]) && latTwo == Double.parseDouble(fileNameExtracted[2])
+                                && lngOne == Double.parseDouble(fileNameExtracted[1]) && lngTwo == Double.parseDouble(fileNameExtracted[3])) {
+
+                            imageFoundInDirectory = true;
+                            imageToOverlay = fileNameExtracted[0] + "_" + fileNameExtracted[1] + "_" + fileNameExtracted[2] + "_" + fileNameExtracted[3] + ".bmp";
+                            System.out.println("DEBUG: Hamburg Overlay found for: " + Arrays.toString(fileNameExtracted));
+                            SW = new LatLng(latOne, lngOne);
+                            NE = new LatLng(latTwo, lngTwo);
+                            //oldImageToOverlay = imageToOverlay;
+                        } else {
+                            System.out.println("DEBUG: Hamburg Overlay NOT found for:  " + Arrays.toString(fileNameExtracted));
+
+                        }
+                    }catch(Exception e){
+                        Log.i("DEBUG", "Checking Image");
+                    }
+
+                }
+
+                System.out.println("DEBUG: Image name should be: " + latOne+"_"+lngOne+"_"+latTwo+"_"+lngTwo);
+
+                try{
+                    //coord. names are changed to image name. if the image name is different, go to this loop.
+                    if (!oldImageToOverlay.equals(imageToOverlay)) {
+                        //if the image is in directory, use that image for overlay
+                        if (imageFoundInDirectory) {
+                            System.out.println("DEBUG: DRAWING OVERLAY " + imageFoundInDirectory + " with image: " + imageToOverlay);
+                            Toast.makeText(getApplicationContext(), "Image found.", Toast.LENGTH_LONG).show();
+
+                            bound = new LatLngBounds(SW, NE);
+                            image = BitmapDescriptorFactory.fromPath(dir + "/" + imageToOverlay);
+                            mGroundOverlay = mMap.addGroundOverlay(new GroundOverlayOptions()
+                                    .image(image)
+                                    .positionFromBounds(bound)
+                                    .transparency(0.1f));
+
+                            oldImageToOverlay = imageToOverlay;
+                        }
+                        //if it is not is directory, download the image
+                        else {
+                            System.out.println("DEBUG: DOWNLOADING IMAGE ");
+                            Toast.makeText(getApplicationContext(), "Waiting for an image...", Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                }catch(Exception e){
+                    Log.i("DEBUG", "image name error");
+                }
+
+                overlayHandler.postDelayed(this, 10000);
+            }
+        });
+    }
+
+
+    private void whereAmI(){
+
+        if (locationService != null && locationService.getLatitude() != 404 && locationService.getLongitude() != 404) {
+            currentLocation = new LatLng(locationService.getLatitude(), locationService.getLongitude());
+        }
+        else {
+            currentLocation = new LatLng(locationCoordinates.getLatitude(), locationCoordinates.getLongitude());
+        }
+
+        mMap.addMarker(new MarkerOptions().position(currentLocation).title("LAT:" + latitude + " LNG:" + longitude));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+    }
+
+    private void showGoodSignal(){
+        Polyline line = mMap.addPolyline(new PolylineOptions()
+                .add(new LatLng(latitude, longitude), new LatLng(53.555037, 10.022218))
+                .width(10)
+                .color(Color.RED));
+        mMap.addMarker(new MarkerOptions().position(new LatLng(53.555037, 10.022218)).title("Assumed strong signal point"));
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        latitude = locationCoordinates.getLatitude();
-        longitude = locationCoordinates.getLongitude();
-
         // mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        LatLng currentLocation = new LatLng(latitude, longitude);
-        //mMap.addMarker(new MarkerOptions().position(currentLocation).title("LAT:" + latitude + " LNG:" + longitude));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
         mMap.setBuildingsEnabled(true);
         mMap.setMaxZoomPreference(16);
-        //mMap.setMinZoomPreference(9);
 
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
+
+        mTransparencyBar.setOnSeekBarChangeListener(this);
     }
+
+
+    public void latitudeApproximator() {
+
+        if(latitude >= (Math.floor(latitude)+0.0) && latitude < (Math.floor(latitude)+0.3)){
+            //System.out.println("TEST latAprox: "+latitude+" lies within 0 and 0.3");
+            latOne = Math.floor(latitude)+0.0;
+            latTwo = Math.floor(latitude)+0.3;
+        }
+
+        else if(latitude >= (Math.floor(latitude)+0.3) && latitude < (Math.floor(latitude)+0.6)){
+            //System.out.println("TEST latAprox: "+latitude+" lies within 0.3 and 0.6");
+            latOne = Math.floor(latitude)+0.3;
+            latTwo = Math.floor(latitude)+0.6;
+        }
+
+        if(latitude >= (Math.floor(latitude)+0.6) && latitude < (Math.floor(latitude)+0.9999)){
+            //System.out.println("TEST latAprox: "+latitude+" lies within 0.6 and 0.9999");
+            latOne = Math.floor(latitude)+0.6;
+            latTwo = Math.floor(latitude)+0.9;
+        }
+    }
+
+
+    public void longitudeApproximator(){
+
+        if(longitude >= (Math.floor(longitude)+0.0) && longitude < (Math.floor(longitude)+0.3)){
+            //System.out.println("TEST lngAprox: "+longitude+" lies within 0 and 0.3");
+            lngOne = Math.floor(longitude)+0.0;
+            lngTwo = Math.floor(longitude)+0.3;
+        }
+
+        else if(longitude >= (Math.floor(longitude)+0.3) && longitude < (Math.floor(longitude)+0.6)){
+            //System.out.println("TEST lngAprox: "+longitude+" lies within 0.3 and 0.6");
+            lngOne = Math.floor(longitude)+0.3;
+            lngTwo = Math.floor(longitude)+0.6;
+        }
+
+        if(longitude >= (Math.floor(longitude)+0.6) && longitude < (Math.floor(longitude)+0.9999)){
+            //System.out.println("TEST lngAprox: "+longitude+" lies within 0.6 and 0.9999");
+            lngOne = Math.floor(longitude)+0.6;
+            lngTwo = Math.floor(longitude)+0.9;
+        }
+    }
+
+
+    public void showTreePerm(File dir){
+        Log.i("PERMISSION LOG", "Requesting telephony permissions.");
+
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, READ_EXTERNAL_STORAGE_CODE,
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE, true);
+        } else {
+            Log.i("PERMISSION LOG", "Readstuff permission been granted.");
+            // showTree(dir);
+        }
+    }
+
 
 
     // stuff for main menu goes here
@@ -186,15 +410,27 @@ public class mainMapActivity extends AppCompatActivity implements
                                     ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         menu.setHeaderTitle(R.string.mainMenuHeader);
-        menu.add(0, v.getId(), 0, "Generate Overlay");
+        menu.add(0, v.getId(), 0, "Signal Stength");
+        menu.add(0, v.getId(), 0, "Where am I");
+        menu.add(0, v.getId(), 0, "Show good signal");
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        if (item.getTitle() == "Generate Overlay") {
-            Toast.makeText(this, "Generating overlay", Toast.LENGTH_SHORT).show();
-            Intent HamburgOverlayIntent = new Intent(getApplicationContext(),HamburgOverlay.class);
-            startActivity(HamburgOverlayIntent);
+        if (item.getTitle() == "Signal Stength") {
+            //Intent signalStrengthIntent = new Intent(getApplicationContext(),HamburgOverlay.class);
+            //startActivity(signalStrengthIntent);
+            Toast.makeText(this, "signal strength button clicked", Toast.LENGTH_SHORT).show();
+            makeOverlay();
+        } else if (item.getTitle() == "Where am I") {
+            latitude = locationCoordinates.getLatitude();
+            longitude = locationCoordinates.getLongitude();
+            String currentCoordinates = "LAT:"+latitude+" LNG:"+longitude;
+            Toast.makeText(this, "Marking your location", Toast.LENGTH_SHORT).show();
+            whereAmI();
+        } else if (item.getTitle() == "Show good signal") {
+            //Toast.makeText(this, "Generating overlay", Toast.LENGTH_SHORT).show();
+            showGoodSignal();
         } else {
             return false;
         }
@@ -317,4 +553,27 @@ public class mainMapActivity extends AppCompatActivity implements
         }
     };
 
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (mGroundOverlay != null) {
+            mGroundOverlay.setTransparency((float) progress / (float) TRANSPARENCY_MAX);
+        }
+    }
+
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+    }
+
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+    }
+
+
+    @Override
+    public void onGroundOverlayClick(GroundOverlay groundOverlay) {
+        mGroundOverlay.setTransparency(0.5f - mGroundOverlay.getTransparency());
+    }
 }

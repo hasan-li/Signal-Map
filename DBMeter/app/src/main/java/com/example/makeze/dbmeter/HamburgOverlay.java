@@ -51,11 +51,11 @@ public class HamburgOverlay extends AppCompatActivity implements
     private SeekBar mTransparencyBar;
 
 
-    LocationCoordinates locationCoordinates;
-    LocationCoordinatesService locationService;
-    LatLng currentLocation;
-    double latitude;
-    double longitude;
+    private LocationCoordinates locationCoordinates;
+    private LocationCoordinatesService locationService;
+    private LatLng currentLocation;
+    private double latitude;
+    private double longitude;
     private double latOne, latTwo;
     private double lngOne, lngTwo;
     private LatLng SW ; //bottom right corner of the image
@@ -117,11 +117,11 @@ public class HamburgOverlay extends AppCompatActivity implements
         mapFragment.getMapAsync(this);
 
         customHandler = new android.os.Handler();
-        customHandler.postDelayed(updateTimerThread, 0);
+        customHandler.postDelayed(updateOverlayThread, 0);
 
     }
 
-    private Runnable updateTimerThread = new Runnable()
+    private Runnable updateOverlayThread = new Runnable()
     {
         public void run()
         {
@@ -186,7 +186,7 @@ public class HamburgOverlay extends AppCompatActivity implements
                                 .positionFromBounds(bound)
                                 .transparency(0.1f));
 
-                      oldImageToOverlay = imageToOverlay;
+                        oldImageToOverlay = imageToOverlay;
                     }
                     //if it is not is directory, download the image
                     else {
@@ -301,7 +301,7 @@ public class HamburgOverlay extends AppCompatActivity implements
                     android.Manifest.permission.READ_EXTERNAL_STORAGE, true);
         } else {
             Log.i("PERMISSION LOG", "Readstuff permission been granted.");
-           // showTree(dir);
+            // showTree(dir);
         }
     }
 
