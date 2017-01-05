@@ -71,9 +71,9 @@ public class mainMapActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 
         this.mContext = this;
+        checkPermissions();
         // create a folder for storage
         setContentView(R.layout.activity_main_map);
-        checkPermissions();
 
         ImageButton mainMenuButton = (ImageButton) findViewById(R.id.mainMenuButton);
         mainMenuSetup(mainMenuButton);
