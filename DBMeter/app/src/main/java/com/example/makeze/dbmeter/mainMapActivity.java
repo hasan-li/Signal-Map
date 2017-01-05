@@ -94,7 +94,6 @@ public class mainMapActivity extends AppCompatActivity implements
         startActivity(intent);*/
         //
         // -------------------------------------------------------
-        //updateServer();
     }
 
     @Override
@@ -178,8 +177,6 @@ public class mainMapActivity extends AppCompatActivity implements
 
         mMap.setOnMyLocationButtonClickListener(this);
         enableMyLocation();
-
-        //mTransparencyBar.setOnSeekBarChangeListener(this);
     }
 
 
@@ -189,23 +186,12 @@ public class mainMapActivity extends AppCompatActivity implements
                                     ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         menu.setHeaderTitle(R.string.mainMenuHeader);
-        menu.add(0, v.getId(), 0, "Signal Stength");
-        menu.add(0, v.getId(), 0, "Where am I");
-        menu.add(0, v.getId(), 0, "Show good signal");
+        menu.add(0, v.getId(), 0, "Generate Overlay");
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        if (item.getTitle() == "Signal Stength") {
-            Intent signalStrengthIntent = new Intent(getApplicationContext(),HamburgOverlay.class);
-            startActivity(signalStrengthIntent);
-        } else if (item.getTitle() == "Where am I") {
-            latitude = locationCoordinates.getLatitude();
-            longitude = locationCoordinates.getLongitude();
-            String currentCoordinates = "LAT:"+latitude+" LNG:"+longitude;
-            Toast.makeText(this, "Fetching coordinates", Toast.LENGTH_SHORT).show();
-            Toast.makeText(this, currentCoordinates, Toast.LENGTH_LONG).show();
-        } else if (item.getTitle() == "Show good signal") {
+        if (item.getTitle() == "Generate Overlay") {
             Toast.makeText(this, "Generating overlay", Toast.LENGTH_SHORT).show();
             Intent HamburgOverlayIntent = new Intent(getApplicationContext(),HamburgOverlay.class);
             startActivity(HamburgOverlayIntent);

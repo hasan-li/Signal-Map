@@ -45,7 +45,7 @@ public class SignalStrengthService extends Service {
         public void onSignalStrengthsChanged(SignalStrength signalStrength) {
             super.onSignalStrengthsChanged(signalStrength);
             mSignalStrength = (2 * signalStrength.getCdmaDbm())- 113;
-            allCellInfo = mTelephonyManager.getAllCellInfo();
+            //allCellInfo = mTelephonyManager.getAllCellInfo();
         }
     }
 
