@@ -73,6 +73,9 @@ public class mainMapActivity extends AppCompatActivity implements
 
     private BitmapDescriptor image;
     private GroundOverlay mGroundOverlay;
+    Marker locMarker;
+    Marker routeMarker;
+    Polyline route;
 
     private int READ_EXTERNAL_STORAGE_CODE = 5;
 
@@ -277,12 +280,12 @@ public class mainMapActivity extends AppCompatActivity implements
                 System.out.println("DEBUG: Image name should be: " + latOne+"_"+lngOne+"_"+latTwo+"_"+lngTwo);
 
                 try{
-                    //coord. names are changed to image name. if the image name is different, go to this loop.
+                    //coordinates names are changed to image name. if the image name is different, go to this loop.
                     if (!oldImageToOverlay.equals(imageToOverlay)) {
                         //if the image is in directory, use that image for overlay
                         if (imageFoundInDirectory) {
                             System.out.println("DEBUG: DRAWING OVERLAY " + imageFoundInDirectory + " with image: " + imageToOverlay);
-                            Toast.makeText(getApplicationContext(), "Image found.", Toast.LENGTH_LONG).show();
+                            //Toast.makeText(getApplicationContext(), "Image found.", Toast.LENGTH_LONG).show();
 
                             bound = new LatLngBounds(SW, NE);
                             image = BitmapDescriptorFactory.fromPath(dir + "/" + imageToOverlay);
@@ -325,11 +328,12 @@ public class mainMapActivity extends AppCompatActivity implements
     }
 
     private void showGoodSignal(){
-        Polyline line = mMap.addPolyline(new PolylineOptions()
+        route = mMap.addPolyline(new PolylineOptions()
                 .add(new LatLng(latitude, longitude), new LatLng(53.555037, 10.022218))
                 .width(10)
                 .color(Color.RED));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(53.555037, 10.022218)).title("Assumed strong signal point"));
+        routeMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(53.555037, 10.022218)).title("Assumed strong signal point"));
+        route.setGeodesic(true);
     }
 
     @Override
@@ -424,16 +428,36 @@ public class mainMapActivity extends AppCompatActivity implements
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getTitle() == "Generate signal strength") {
-            makeOverlay();
+
+            if(mGroundOverlay != null){
+                Toast.makeText(this, "Overlay removed", Toast.LENGTH_SHORT).show();
+                mGroundOverlay.remove();
+                mGroundOverlay = null;
+                oldImageToOverlay = "";
+            }
+            else{
+                makeOverlay();
+            }
+
         /*} else if (item.getTitle() == "Where am I") {
-            latitude = locationCoordinates.getLatitude();
-            longitude = locationCoordinates.getLongitude();
-            String currentCoordinates = "LAT:"+latitude+" LNG:"+longitude;
-            Toast.makeText(this, "Marking your location", Toast.LENGTH_SHORT).show();
-            whereAmI();*/
+            // Toast.makeText(this, "Marking your location", Toast.LENGTH_SHORT).show();
+            if(locMarker != null){
+                Toast.makeText(this, "Location Marker removed", Toast.LENGTH_SHORT).show();
+                locMarker.remove();
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
+                locMarker = null;
+            }else{
+                whereAmI();
+            }*/
         } else if (item.getTitle() == "Point to best signal location") {
-            //Toast.makeText(this, "Generating overlay", Toast.LENGTH_SHORT).show();
-            showGoodSignal();
+            if(route != null){
+                Toast.makeText(this, "Path removed", Toast.LENGTH_SHORT).show();
+                route.remove();
+                route = null;
+                routeMarker.remove();
+            }else{
+                showGoodSignal();
+            }
         } else {
             return false;
         }
