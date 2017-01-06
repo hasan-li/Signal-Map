@@ -98,6 +98,8 @@ public class mainMapActivity extends AppCompatActivity implements
     private boolean locationBound = false;
     private boolean permissionsGranted = false;
     List<String> backUp = new ArrayList<String>();
+    private int downloadFrequency = 10000;
+    private int uploadFrequency = 10000;
 
     private UploaderClass serverUploader;
 
@@ -182,7 +184,7 @@ public class mainMapActivity extends AppCompatActivity implements
                     }
                     //new ImageDownloaderClass().execute();
                 }
-                handler.postDelayed(this, 10000);
+                handler.postDelayed(this, uploadFrequency);
             }
         });
     }
@@ -203,7 +205,7 @@ public class mainMapActivity extends AppCompatActivity implements
                         new LinkDownloaderClass(params).execute();
                     }
                 }
-                handler.postDelayed(this, 10000);
+                handler.postDelayed(this, downloadFrequency);
             }
         });
     }
