@@ -40,7 +40,9 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import android.os.Handler;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
@@ -95,6 +97,7 @@ public class mainMapActivity extends AppCompatActivity implements
     private boolean signalBound = false;
     private boolean locationBound = false;
     private boolean permissionsGranted = false;
+    List<String> backUp = new ArrayList<String>();
 
     private UploaderClass serverUploader;
 
@@ -174,6 +177,7 @@ public class mainMapActivity extends AppCompatActivity implements
                             "&s="+signalService.getSignalStrengthDBm(); // http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?x=XXX.XXXXXX&y=YYY.YYYYYY&s=ZZZ
                     if(latTrim!="404.000000"){
                         //new LinkDownloaderClass(params).execute();
+                        backUp.add("http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?"+params);
                         new UploaderClass(params).execute();
                     }
                     //new ImageDownloaderClass().execute();
@@ -573,4 +577,11 @@ public class mainMapActivity extends AppCompatActivity implements
     public void onGroundOverlayClick(GroundOverlay groundOverlay) {
         mGroundOverlay.setTransparency(0.5f - mGroundOverlay.getTransparency());
     }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        new BackUpClass(backUp);
+    }
+
 }
