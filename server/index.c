@@ -38,6 +38,19 @@ int * locateStrength(double x, double y){
     double step = 0.000150;
     static int coord_step_val[2];
     
+    if ((x > 0.3) && (x < 0.6)){
+        x = x - 0.3;
+    } else if ((x > 0.6) && (x < 0.999999)){
+        x = x - 0.6;
+    }
+    
+    
+    if ((y > 0.3) && (y < 0.6)){
+        y = y - 0.3;
+    } else if ((y > 0.6) && (y < 0.999999)){
+        y = y - 0.6;
+    }
+    
     coord_step_val[0] =(int)floor(x/step);
     coord_step_val[1] =(int)floor(y/step);
     
@@ -80,61 +93,8 @@ char * generateFolderName(int x_decimal, int y_decimal, double x_mantissa, doubl
     return buffer;
     
 }
+
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-void editFile(char *folder_name, char *coorLine) {
-    FILE *fp;
-    
-//    printf("%s", coorLine);
-    
-    fp = fopen(folder_name, "a+");
-    
-    
-    if (fp) {
-        fprintf(fp, "%s\n", coorLine);
-        fclose(fp);
-    } else {
-        fprintf(stderr,"error opening file \"%s\"\n", folder_name);
-        perror("error opening file.");
-    }
-        
-}
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-void getData(int number) {
-    FILE *fp;
-    char buffer[255];
-    
-    sprintf(buffer, "data/%d.txt", number);
-    fp = fopen(buffer, "r");
-    fscanf(fp, "%s", buffer);
-    printf("1 : %s\n", buffer );
-
-    fgets(buffer, 255, (FILE*)fp);
-    printf("2: %s\n", buffer );
-
-    
-    fgets(buffer, 255, (FILE*)fp);
-    printf("3: %s\n", buffer );
-    fclose(fp);
-}
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -201,13 +161,14 @@ void updateFileWitheData(char *fname, int x, int y, int s){
         fprintf(stderr,"error opening file \"%s\"\n", fname);
         perror("error opening file.");
     }
-    
+
     
 //    writing back updated array
     i, j = 0;
+    
     layer[x][y] = layer[x][y] * 0.2 + s * 0.8;
     printf("<br />s in arr before mod = %d <br /> ", layer[x][y]);
-//    layer[x][y] = s;
+    layer[x][y] = s;
     
     printf("s in arr = %d <br />", layer[x][y]);
     if (fp) {
@@ -279,14 +240,15 @@ int main (void){
     double x, y;
     int s;
     
-
-    if((isdigit(queryData[0])) && (isdigit(queryData[1])) && (isdigit(queryData[2]))) {
-      //valid input
-    }
-    else
-    {
-      //invalid input
-    }
+//    input data checking
+    
+//    if((isdigit(queryData[0])) && (isdigit(queryData[1])) && (isdigit(queryData[2]))) {
+//      //valid input
+//    }
+//    else
+//    {
+//      //invalid input
+//    }
     
 //    retriving data from query
     x = atof(queryData[0]);
@@ -319,16 +281,14 @@ int main (void){
  * generating line with coordinates and strength
  * coorLine contains line
 */
-    int *coord_step_val, *search_res;
-    char *coorLine, *coorLine_strength, temp_coorline[30], temp_coorline_strength[30];
+    int *coord_step_val;
     coord_step_val = locateStrength(x_mantissa, y_mantissa);
     
     printf("0 - %d <br /> 1 - %d <br />", coord_step_val[0], coord_step_val[1]);
     
-    sprintf(temp_coorline, "%d|%d|", coord_step_val[0], coord_step_val[1]);
+    
 
     
-    coorLine = temp_coorline;
 
     
     
@@ -338,7 +298,7 @@ int main (void){
     //get the folder_name, where signal strength and corresponding coordinates are located
     char* folder_name = generateFolderName(x_decimal, y_decimal, x_mantissa, y_mantissa);
     
-    
+    printf("folder_name: %s", folder_name);
     if( access( folder_name, F_OK ) != -1 ) {
         printf("file exists");
         updateFileWitheData(folder_name, coord_step_val[0], coord_step_val[1], s);
@@ -346,7 +306,7 @@ int main (void){
         printf("file doesn't exist");
         createFileWitheData(folder_name, coord_step_val[0], coord_step_val[1], s);
     }
-    
+//    
     
     
     
