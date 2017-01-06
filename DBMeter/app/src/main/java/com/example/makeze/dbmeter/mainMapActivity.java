@@ -410,25 +410,22 @@ public class mainMapActivity extends AppCompatActivity implements
                                     ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         menu.setHeaderTitle(R.string.mainMenuHeader);
-        menu.add(0, v.getId(), 0, "Signal Stength");
-        menu.add(0, v.getId(), 0, "Where am I");
-        menu.add(0, v.getId(), 0, "Show good signal");
+        menu.add(0, v.getId(), 0, "Generate signal strength");
+        //menu.add(0, v.getId(), 0, "Where am I");
+        menu.add(0, v.getId(), 0, "Point to best signal location");
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        if (item.getTitle() == "Signal Stength") {
-            //Intent signalStrengthIntent = new Intent(getApplicationContext(),HamburgOverlay.class);
-            //startActivity(signalStrengthIntent);
-            Toast.makeText(this, "signal strength button clicked", Toast.LENGTH_SHORT).show();
+        if (item.getTitle() == "Generate signal strength") {
             makeOverlay();
-        } else if (item.getTitle() == "Where am I") {
+        /*} else if (item.getTitle() == "Where am I") {
             latitude = locationCoordinates.getLatitude();
             longitude = locationCoordinates.getLongitude();
             String currentCoordinates = "LAT:"+latitude+" LNG:"+longitude;
             Toast.makeText(this, "Marking your location", Toast.LENGTH_SHORT).show();
-            whereAmI();
-        } else if (item.getTitle() == "Show good signal") {
+            whereAmI();*/
+        } else if (item.getTitle() == "Point to best signal location") {
             //Toast.makeText(this, "Generating overlay", Toast.LENGTH_SHORT).show();
             showGoodSignal();
         } else {
