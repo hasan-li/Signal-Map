@@ -8,4 +8,7 @@
     <string name="transparency">Transparency</string>
     <string name="toogleMap">Cell Network Map</string>
     <string name="mainMenuHeader">Options</string>>
+    <string name="alert_title"><b>GPS Required</b></string>
+    <string name="alert_Msg">Turn ON Location services in de- vice setting to allow <b>DBMeter</b> to determine your current location.</string>
+
 </resources>
