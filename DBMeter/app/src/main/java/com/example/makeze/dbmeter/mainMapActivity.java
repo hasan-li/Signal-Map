@@ -543,7 +543,7 @@ public class mainMapActivity extends AppCompatActivity implements
     public boolean onMyLocationButtonClick() {
         // Return false so that we don't consume the event and the default behavior still occurs
         if((locationCoordinates.getLocation() == null) || (locationService.getLatitude() == 404 && locationService.getLongitude() == 404)){
-            Toast.makeText(getApplicationContext(), "Location services not available", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Location services not ready, try again", Toast.LENGTH_SHORT).show();
             return  true;
         } else{
             return false;
