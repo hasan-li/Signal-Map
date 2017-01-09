@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.Path;
+import android.location.Location;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -260,12 +261,11 @@ public class mainMapActivity extends AppCompatActivity implements
                     double tempLatitude = locationService.getLatitude();
                     double tempLongitude = locationService.getLongitude();
 
-                    if (tempLatitude != latitude) {
+                    if (tempLatitude != latitude || tempLongitude != longitude) {
                         latitude = tempLatitude;
-                        if (tempLongitude != longitude) {
-                            longitude = tempLongitude;
-                        }
+                        longitude = tempLongitude;
                     }
+
                     currentLocation = new LatLng(latitude, longitude);
 
                     try {
@@ -379,8 +379,7 @@ public class mainMapActivity extends AppCompatActivity implements
                 })
                 .setNegativeButton("NOT NOW", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-
-                        Toast.makeText(getApplicationContext(), "Location services not available", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Location access denied", Toast.LENGTH_SHORT).show();
                         // cancel the dialog box
                         dialog.cancel();
                     }
@@ -417,17 +416,14 @@ public class mainMapActivity extends AppCompatActivity implements
     public void latitudeApproximator() {
 
         if (latitude >= (Math.floor(latitude) + 0.0) && latitude < (Math.floor(latitude) + 0.3)) {
-            //System.out.println("TEST latAprox: "+latitude+" lies within 0 and 0.3");
             latOne = Math.floor(latitude) + 0.0;
             latTwo = Math.floor(latitude) + 0.3;
         } else if (latitude >= (Math.floor(latitude) + 0.3) && latitude < (Math.floor(latitude) + 0.6)) {
-            //System.out.println("TEST latAprox: "+latitude+" lies within 0.3 and 0.6");
             latOne = Math.floor(latitude) + 0.3;
             latTwo = Math.floor(latitude) + 0.6;
         }
 
         if (latitude >= (Math.floor(latitude) + 0.6) && latitude < (Math.floor(latitude) + 0.9999)) {
-            //System.out.println("TEST latAprox: "+latitude+" lies within 0.6 and 0.9999");
             latOne = Math.floor(latitude) + 0.6;
             latTwo = Math.floor(latitude) + 0.9;
         }
@@ -437,17 +433,14 @@ public class mainMapActivity extends AppCompatActivity implements
     public void longitudeApproximator() {
 
         if (longitude >= (Math.floor(longitude) + 0.0) && longitude < (Math.floor(longitude) + 0.3)) {
-            //System.out.println("TEST lngAprox: "+longitude+" lies within 0 and 0.3");
             lngOne = Math.floor(longitude) + 0.0;
             lngTwo = Math.floor(longitude) + 0.3;
         } else if (longitude >= (Math.floor(longitude) + 0.3) && longitude < (Math.floor(longitude) + 0.6)) {
-            //System.out.println("TEST lngAprox: "+longitude+" lies within 0.3 and 0.6");
             lngOne = Math.floor(longitude) + 0.3;
             lngTwo = Math.floor(longitude) + 0.6;
         }
 
         if (longitude >= (Math.floor(longitude) + 0.6) && longitude < (Math.floor(longitude) + 0.9999)) {
-            //System.out.println("TEST lngAprox: "+longitude+" lies within 0.6 and 0.9999");
             lngOne = Math.floor(longitude) + 0.6;
             lngTwo = Math.floor(longitude) + 0.9;
         }
@@ -483,15 +476,14 @@ public class mainMapActivity extends AppCompatActivity implements
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getTitle() == "Generate signal strength") {
-            if (mGroundOverlay != null) {
-                Toast.makeText(this, "Overlay removed", Toast.LENGTH_SHORT).show();
-                mGroundOverlay.remove();
-                mGroundOverlay = null;
-                oldImageToOverlay = "";
-            } else {
-                makeOverlay();
-            }
-
+                if (mGroundOverlay != null) {
+                    Toast.makeText(this, "Overlay removed", Toast.LENGTH_SHORT).show();
+                    mGroundOverlay.remove();
+                    mGroundOverlay = null;
+                    oldImageToOverlay = "";
+                } else {
+                    makeOverlay();
+                }
 
         /*} else if (item.getTitle() == "Where am I") {
             // Toast.makeText(this, "Marking your location", Toast.LENGTH_SHORT).show();
@@ -512,7 +504,8 @@ public class mainMapActivity extends AppCompatActivity implements
             } else {
                 showGoodSignal();
             }
-        } else {
+        }
+        else {
             return false;
         }
         return true;
@@ -548,10 +541,13 @@ public class mainMapActivity extends AppCompatActivity implements
 
     @Override
     public boolean onMyLocationButtonClick() {
-        //Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
         // Return false so that we don't consume the event and the default behavior still occurs
-        // (the camera animates to the user's current position).
-        return false;
+        if((locationCoordinates.getLocation() == null) || (locationService.getLatitude() == 404 && locationService.getLongitude() == 404)){
+            Toast.makeText(getApplicationContext(), "Location services not available", Toast.LENGTH_SHORT).show();
+            return  true;
+        } else{
+            return false;
+        }
     }
 
 
