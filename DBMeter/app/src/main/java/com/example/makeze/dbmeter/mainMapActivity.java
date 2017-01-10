@@ -234,6 +234,7 @@ public class mainMapActivity extends AppCompatActivity implements
                 System.out.println("DEBUG: Handler running");
                 LatLngBounds bound;
 
+
                 FilenameFilter filter = new FilenameFilter() {
                     public boolean accept (File dir, String name) {
                         return name.endsWith(".bmp");
@@ -241,14 +242,16 @@ public class mainMapActivity extends AppCompatActivity implements
                 };
 
                 String[] file = dir.list(filter);
-                if (file == null) {
-                } else {
+                if (file == null){}
+                else {
                     for (int i=0; i< file.length; i++) {
                         imageName = file[i];
                         System.out.println("DEBUG imageNames "+imageName);
                     }
                 }
 
+
+                try {
                     Pattern p = Pattern.compile("(.*?).bmp");
                     Matcher m = p.matcher(imageName);
 
@@ -257,6 +260,9 @@ public class mainMapActivity extends AppCompatActivity implements
                         fileNameExtracted = tempName.split("_");
                         System.out.println("fileNameExtracted: " + Arrays.toString(fileNameExtracted));
                     }
+                }catch(Exception e){
+                    //Toast.makeText(getApplicationContext(), "imageName not found",Toast.LENGTH_SHORT).show();
+                }
 
                     double tempLatitude = locationService.getLatitude();
                     double tempLongitude = locationService.getLongitude();
@@ -348,18 +354,22 @@ public class mainMapActivity extends AppCompatActivity implements
     }
 
     private void showGoodSignal() {
-        signalPointer = mMap.addPolyline(new PolylineOptions()
-                .add(new LatLng(latitude, longitude),
-                        new LatLng(53.556769, 10.022707),
-                        new LatLng (53.556303, 10.021608),
-                        new LatLng(53.555437, 10.022772),
-                        new LatLng(53.554831, 10.023201),
-                        new LatLng(53.553690, 10.024086),
-                        new LatLng(53.553228, 10.020905))
-                .width(10)
-                .color(Color.RED));
-        routeMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(53.553228, 10.020905)).title("Assumed strong signal point"));
-        signalPointer.setGeodesic(true);
+            if((locationCoordinates.getLocation() != null ) || (latitude != 404 && longitude != 404)) {
+                signalPointer = mMap.addPolyline(new PolylineOptions()
+                        .add(new LatLng(latitude, longitude),
+                                new LatLng(53.556769, 10.022707),
+                                new LatLng(53.556303, 10.021608),
+                                new LatLng(53.555437, 10.022772),
+                                new LatLng(53.554831, 10.023201),
+                                new LatLng(53.553690, 10.024086),
+                                new LatLng(53.553228, 10.020905))
+                        .width(10)
+                        .color(Color.RED));
+                routeMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(53.553228, 10.020905)).title("Assumed strong signal point"));
+            }
+            else{
+                Toast.makeText(getApplicationContext(),"user location not indentified", Toast.LENGTH_SHORT).show();
+            }
     }
 
 
@@ -502,7 +512,7 @@ public class mainMapActivity extends AppCompatActivity implements
                 signalPointer = null;
                 routeMarker.remove();
             } else {
-                showGoodSignal();
+                   showGoodSignal();
             }
         }
         else {
@@ -542,12 +552,7 @@ public class mainMapActivity extends AppCompatActivity implements
     @Override
     public boolean onMyLocationButtonClick() {
         // Return false so that we don't consume the event and the default behavior still occurs
-        if((locationCoordinates.getLocation() == null) || (locationService.getLatitude() == 404 && locationService.getLongitude() == 404)){
-            Toast.makeText(getApplicationContext(), "Location services not ready, try again", Toast.LENGTH_SHORT).show();
-            return  true;
-        } else{
             return false;
-        }
     }
 
 

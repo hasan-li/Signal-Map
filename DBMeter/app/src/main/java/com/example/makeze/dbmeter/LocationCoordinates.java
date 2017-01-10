@@ -47,7 +47,8 @@ public class LocationCoordinates extends Activity implements LocationListener {
 
         try {
             locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-            provider = locationManager.getBestProvider(new Criteria(), false);
+            //provider = locationManager.getBestProvider(new Criteria(), false);
+            provider = LocationManager.GPS_PROVIDER;
             isProviderEnabled = locationManager.isProviderEnabled(provider);
             Log.i("isProviderEnabled", "=" + isProviderEnabled);
 
