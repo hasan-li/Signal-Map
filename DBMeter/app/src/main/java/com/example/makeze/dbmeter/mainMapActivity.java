@@ -134,7 +134,7 @@ public class mainMapActivity extends AppCompatActivity implements
 
         locationCoordinates = new LocationCoordinates(mainMapActivity.this);
 
-        if (locationCoordinates.getLocation() == null) {
+        if (locationCoordinates.providerStatus() == false) {
             alertbox();
         }
 
@@ -354,7 +354,7 @@ public class mainMapActivity extends AppCompatActivity implements
     }
 
     private void showGoodSignal() {
-            if((locationCoordinates.getLocation() != null ) || (latitude != 404 && longitude != 404)) {
+            if(locationCoordinates.providerStatus()) {
                 signalPointer = mMap.addPolyline(new PolylineOptions()
                         .add(new LatLng(latitude, longitude),
                                 new LatLng(53.556769, 10.022707),
