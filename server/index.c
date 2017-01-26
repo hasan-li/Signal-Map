@@ -58,6 +58,24 @@ int * locateStrength(double x, double y){
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+int * onvvertToNormalCoor(int x, int y, int x_decimal, int y_decimal, double x_mantissa, double y_mantissa){
+    
+    x_mantissa
+    x_decimal
+    
+    double step = 0.000150;
+    static int origin_coordin[2];
+    
+    
+    origin_coordin[0] = x * step;
+    origin_coordin[1] = y * step;
+    
+    
+    
+    return coord_step_val;
+}
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 char * generateFolderName(int x_decimal, int y_decimal, double x_mantissa, double y_mantissa){
     
     int mantissaForFolder_x, mantissaForFolder_y;
@@ -93,16 +111,13 @@ char * generateFolderName(int x_decimal, int y_decimal, double x_mantissa, doubl
     return buffer;
     
 }
-
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 
 void createFileWitheData(char *fname, int x, int y, int s){
-    
     int r = 2000, c = 2000, i, j;
- 
     int *layer[r];
     for (i = 0; i < r; i++){
          layer[i] = (int *)malloc(c * sizeof(int));
@@ -115,14 +130,12 @@ void createFileWitheData(char *fname, int x, int y, int s){
             layer[i][j] = 0;
         }
     }
-     
     
     i, j = 0;
-    
     FILE *fp;
     fp = fopen(fname, "w");
-    
     layer[x][y] = s;
+    
     if (fp) {
         for (i = 0; i < 2000; i++){
             for (j = 0; j < 2000; j++){
@@ -148,7 +161,63 @@ void updateFileWitheData(char *fname, int x, int y, int s){
     }
     
     
-    fp=fopen(fname, "wr");
+    fp=fopen(fname, "r+");
+    if (fp) {
+        for(i = 0; i < 2000; i++) {
+            for (j = 0 ; j < 2000; j++) {
+                fscanf(fp, "%d", &layer[i][j]);
+            }
+        }
+        
+    } else {
+        fprintf(stderr,"error opening file \"%s\"\n", fname);
+        perror("error opening file.");
+    }
+    
+//    writing back updated array
+    i, j = 0;
+    printf("<br /> before %d", layer[x][y]);
+    
+//    if old value is 0 (not set), we write new value without any modifications
+//    if old value is != 0 (already set), we save average of old and new value
+    if (layer[x][y] !=0 ){
+        layer[x][y] = (int)layer[x][y] * 0.2 + s * 0.8;
+    } else {
+        layer[x][y] = s;
+    }
+    
+    if (fp) {
+        for (i = 0; i < 2000; i++){
+            for (j = 0; j < 2000; j++){
+                fprintf(fp, "%d ", layer[i][j]);
+            }
+        }
+        
+    }
+    else {
+        fprintf(stderr,"error opening file \"%s\"\n", fname);
+        perror("error opening file.");
+    }
+    
+    printf("<br /> after %d", layer[x][y]);
+    
+    fclose(fp);
+}
+
+
+
+
+int * get_better_signal(char *fname, int x, int y, int s){
+    static int temp_bs_coord[3] = {0};
+    
+    int r = 2000, c = 2000, i, j;
+    int *layer[r];
+    FILE *fp;
+    for (i = 0; i < r; i++){
+         layer[i] = (int *)malloc(c * sizeof(int));
+    }
+    
+    fp=fopen(fname, "r");
     
     if (fp) {
         for(i = 0; i < 2000; i++) {
@@ -161,20 +230,30 @@ void updateFileWitheData(char *fname, int x, int y, int s){
         fprintf(stderr,"error opening file \"%s\"\n", fname);
         perror("error opening file.");
     }
-
     
-//    writing back updated array
     i, j = 0;
     
-    layer[x][y] = layer[x][y] * 0.2 + s * 0.8;
-    printf("<br />s in arr before mod = %d <br /> ", layer[x][y]);
-    layer[x][y] = s;
+    temp_bs_coord[0] = x;
+    temp_bs_coord[1] = y;
+    temp_bs_coord[2] = s;
+    printf("<br>original layer[i][j] - %d <br>", layer[x][y]);
     
-    printf("s in arr = %d <br />", layer[x][y]);
+    
     if (fp) {
-        for (i = 0; i < 2000; i++){
-            for (j = 0; j < 2000; j++){
-                fprintf(fp, "%d ", layer[i][j]);
+        for (i = x-3; i < x+3; i++){
+            for (j = y-3; j < y+3; j++){
+                if ((i != x) || (j != y)){
+                    if (layer[i][j] != 0 ){
+                        printf("layer[i][j] - %d <br>", layer[i][j]);
+                        printf("i - %d <br>", i);
+                        printf("j - %d <br>", j);
+                        if (layer[i][j] > temp_bs_coord[2]){
+                            temp_bs_coord[0] = i;
+                            temp_bs_coord[1] = j;
+                            temp_bs_coord[2] = layer[i][j];
+                        }
+                    }
+                }
             }
         }
         
@@ -185,8 +264,9 @@ void updateFileWitheData(char *fname, int x, int y, int s){
         perror("error opening file.");
     }
     
-    
     fclose(fp);
+    
+    return temp_bs_coord;
 }
 
 
@@ -281,14 +361,16 @@ int main (void){
  * generating line with coordinates and strength
  * coorLine contains line
 */
-    int *coord_step_val;
+    int *coord_step_val, *search_res;
+    char *coorLine, *coorLine_strength, temp_coorline[30], temp_coorline_strength[30];
     coord_step_val = locateStrength(x_mantissa, y_mantissa);
     
     printf("0 - %d <br /> 1 - %d <br />", coord_step_val[0], coord_step_val[1]);
     
-    
+    sprintf(temp_coorline, "%d|%d|", coord_step_val[0], coord_step_val[1]);
 
     
+    coorLine = temp_coorline;
 
     
     
@@ -306,8 +388,12 @@ int main (void){
         printf("file doesn't exist");
         createFileWitheData(folder_name, coord_step_val[0], coord_step_val[1], s);
     }
-//    
     
+    
+    
+    int *temp_bs_coord;
+    temp_bs_coord = get_better_signal(folder_name, coord_step_val[0], coord_step_val[1], s);
+    printf("<br> better signal strength <br> %d <br> %d <br> %d <br>", temp_bs_coord[0], temp_bs_coord[1], temp_bs_coord[2]);
     
     
     
