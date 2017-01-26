@@ -11,6 +11,8 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 
+import java.security.Provider;
+
 public class LocationCoordinatesService extends Service {
 
     private Double lat;
@@ -54,6 +56,7 @@ public class LocationCoordinatesService extends Service {
             LocationManager locManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
             try {
                 provider = locManager.getBestProvider(new Criteria(), false);
+                //provider = LocationManager.GPS_PROVIDER;
                 if(provider!=null) {
                     locManager.requestLocationUpdates(provider, 1000, 1, listener);
                 } else {
