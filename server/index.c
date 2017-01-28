@@ -38,12 +38,13 @@ int * locateStrength(double x, double y){
     double step = 0.000150;
     static int coord_step_val[2];
     
+    
+//    determining in which range (0.0 .. 0.3 .. 0.6 .. 0.9) values of x and y are located
     if ((x > 0.3) && (x < 0.6)){
         x = x - 0.3;
     } else if ((x > 0.6) && (x < 0.999999)){
         x = x - 0.6;
     }
-    
     
     if ((y > 0.3) && (y < 0.6)){
         y = y - 0.3;
@@ -58,21 +59,42 @@ int * locateStrength(double x, double y){
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-int * onvvertToNormalCoor(int x, int y, int x_decimal, int y_decimal, double x_mantissa, double y_mantissa){
-    
-    x_mantissa
-    x_decimal
-    
+double * convvertToNormalCoor(int conv_x, int conv_y, int x_decimal, int y_decimal, double x_mantissa, double y_mantissa){
     double step = 0.000150;
-    static int origin_coordin[2];
+    static double origin_coordin[2];
+    
+//    getting double value from converted values
+    origin_coordin[0] = conv_x * step;
+    origin_coordin[1] = conv_y * step;
     
     
-    origin_coordin[0] = x * step;
-    origin_coordin[1] = y * step;
+    //    determining in which range (0.0 .. 0.3 .. 0.6 .. 0.9) values of x and y are located
+    if ((x_mantissa > 0.3) && (x_mantissa < 0.6)){
+        origin_coordin[0] = origin_coordin[0] + 0.3;
+    } else if ((x_mantissa > 0.6) && (x_mantissa < 0.999999)){
+        origin_coordin[0] = origin_coordin[0] + 0.6;
+    }
+    
+    if ((abs(y_mantissa) > 0.3) && (abs(y_mantissa) < 0.6)){
+        origin_coordin[1] = origin_coordin[1] + 0.3;
+    } else if ((abs(y_mantissa) > 0.6) && (abs(y_mantissa) < 0.999999)){
+        origin_coordin[1] = origin_coordin[1] + 0.6;
+    }
     
     
+    if (x_decimal < 0){
+        origin_coordin[0] = origin_coordin[0] * (-1);
+    }
+    if (y_decimal < 0){
+        origin_coordin[1] = origin_coordin[1] * (-1);
+    }
     
-    return coord_step_val;
+    
+    origin_coordin[0] = x_decimal + origin_coordin[0];
+    origin_coordin[1] = y_decimal + origin_coordin[1];
+    
+    
+    return origin_coordin;
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -176,7 +198,6 @@ void updateFileWitheData(char *fname, int x, int y, int s){
     
 //    writing back updated array
     i, j = 0;
-    printf("<br /> before %d", layer[x][y]);
     
 //    if old value is 0 (not set), we write new value without any modifications
 //    if old value is != 0 (already set), we save average of old and new value
@@ -199,7 +220,6 @@ void updateFileWitheData(char *fname, int x, int y, int s){
         perror("error opening file.");
     }
     
-    printf("<br /> after %d", layer[x][y]);
     
     fclose(fp);
 }
@@ -236,7 +256,7 @@ int * get_better_signal(char *fname, int x, int y, int s){
     temp_bs_coord[0] = x;
     temp_bs_coord[1] = y;
     temp_bs_coord[2] = s;
-    printf("<br>original layer[i][j] - %d <br>", layer[x][y]);
+//    printf("<br>original layer[i][j] - %d <br>", layer[x][y]);
     
     
     if (fp) {
@@ -244,9 +264,9 @@ int * get_better_signal(char *fname, int x, int y, int s){
             for (j = y-3; j < y+3; j++){
                 if ((i != x) || (j != y)){
                     if (layer[i][j] != 0 ){
-                        printf("layer[i][j] - %d <br>", layer[i][j]);
-                        printf("i - %d <br>", i);
-                        printf("j - %d <br>", j);
+//                        printf("layer[i][j] - %d <br>", layer[i][j]);
+//                        printf("i - %d <br>", i);
+//                        printf("j - %d <br>", j);
                         if (layer[i][j] > temp_bs_coord[2]){
                             temp_bs_coord[0] = i;
                             temp_bs_coord[1] = j;
@@ -276,7 +296,6 @@ int * get_better_signal(char *fname, int x, int y, int s){
 
 int main (void){
 	printf("Content-type: text/html\n\n");
-//	printf("CGI-Program has started <br />");
     
 //    query saved in var query
     char query[200];
@@ -335,9 +354,9 @@ int main (void){
     y = atof(queryData[1]);
     s = atoi(queryData[2]);
     
-    printf("x = %f <br />", x);
-    printf("y = %f <br />", y);
-    printf("s = %d <br />", s);
+//    printf("x = %f <br />", x);
+//    printf("y = %f <br />", y);
+//    printf("s = %d <br />", s);
     
     
 //    getting decimal and mantissa of x
@@ -365,7 +384,7 @@ int main (void){
     char *coorLine, *coorLine_strength, temp_coorline[30], temp_coorline_strength[30];
     coord_step_val = locateStrength(x_mantissa, y_mantissa);
     
-    printf("0 - %d <br /> 1 - %d <br />", coord_step_val[0], coord_step_val[1]);
+//    printf("0 - %d <br /> 1 - %d <br />", coord_step_val[0], coord_step_val[1]);
     
     sprintf(temp_coorline, "%d|%d|", coord_step_val[0], coord_step_val[1]);
 
@@ -380,21 +399,24 @@ int main (void){
     //get the folder_name, where signal strength and corresponding coordinates are located
     char* folder_name = generateFolderName(x_decimal, y_decimal, x_mantissa, y_mantissa);
     
-    printf("folder_name: %s", folder_name);
+//    printf("folder_name: %s", folder_name);
     if( access( folder_name, F_OK ) != -1 ) {
-        printf("file exists");
+//        printf("file exists");
         updateFileWitheData(folder_name, coord_step_val[0], coord_step_val[1], s);
     } else {
-        printf("file doesn't exist");
+//        printf("file doesn't exist");
         createFileWitheData(folder_name, coord_step_val[0], coord_step_val[1], s);
     }
     
     
-    
+//    getting better signal strength
     int *temp_bs_coord;
+    double *origin_bs_coord;
     temp_bs_coord = get_better_signal(folder_name, coord_step_val[0], coord_step_val[1], s);
-    printf("<br> better signal strength <br> %d <br> %d <br> %d <br>", temp_bs_coord[0], temp_bs_coord[1], temp_bs_coord[2]);
     
+    origin_bs_coord = convvertToNormalCoor(temp_bs_coord[0], temp_bs_coord[1], x_decimal, y_decimal, x_mantissa, y_mantissa);
+    
+    printf("<br> better signal strength <br> %f <br> %f <br> %d <br>", origin_bs_coord[0], origin_bs_coord[1], temp_bs_coord[2]);    
     
     
 	return 0;
