@@ -99,6 +99,10 @@ public class LocationCoordinates extends Activity implements LocationListener {
         lng = location.getLongitude();
     }
 
+    public boolean providerStatus (){
+        return this.isProviderEnabled;
+    }
+
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         Log.i("Latitude", "status");
