@@ -134,7 +134,7 @@ public class mainMapActivity extends AppCompatActivity implements
 
         locationCoordinates = new LocationCoordinates(mainMapActivity.this);
 
-        if (locationCoordinates.getLocation() == null) {
+        if (!locationCoordinates.isProviderEnabled) {
             alertbox();
         }
 
@@ -481,6 +481,7 @@ public class mainMapActivity extends AppCompatActivity implements
         menu.add(0, v.getId(), 0, "Generate signal strength");
         //menu.add(0, v.getId(), 0, "Where am I");
         menu.add(0, v.getId(), 0, "Point to best signal location");
+        menu.add(0, v.getId(), 0, "Settings");
     }
 
     @Override
@@ -494,17 +495,6 @@ public class mainMapActivity extends AppCompatActivity implements
                 } else {
                     makeOverlay();
                 }
-
-        /*} else if (item.getTitle() == "Where am I") {
-            // Toast.makeText(this, "Marking your location", Toast.LENGTH_SHORT).show();
-            if(locMarker != null){
-                Toast.makeText(this, "Location Marker removed", Toast.LENGTH_SHORT).show();
-                locMarker.remove();
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
-                locMarker = null;
-            }else{
-                whereAmI();
-            }*/
         } else if (item.getTitle() == "Point to best signal location") {
             if (signalPointer != null) {
                 Toast.makeText(this, "path removed", Toast.LENGTH_SHORT).show();
@@ -512,8 +502,11 @@ public class mainMapActivity extends AppCompatActivity implements
                 signalPointer = null;
                 routeMarker.remove();
             } else {
-                   showGoodSignal();
+                showGoodSignal();
             }
+        } else if (item.getTitle() == "Settings") {
+                Intent settAct = new Intent(mainMapActivity.this,ConfigurationManagerActivity.class);
+                mainMapActivity.this.startActivity(settAct);
         }
         else {
             return false;

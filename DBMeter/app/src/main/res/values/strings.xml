@@ -10,5 +10,9 @@
     <string name="mainMenuHeader">Options</string>>
     <string name="alert_title"><b>GPS Required</b></string>
     <string name="alert_Msg">Turn ON Location services in de- vice setting to allow <b>DBMeter</b> to determine your current location.</string>
-
+    <string name="conf_man_tv">Configuration Manager</string>
+    <string name="upload_freq">Server update frequency (seconds)</string>
+    <string name="download_freq">Map download frequency (seconds)</string>
+    <string name="reset_button">Reset</string>
+    <string name="save_button">Save</string>
 </resources>
