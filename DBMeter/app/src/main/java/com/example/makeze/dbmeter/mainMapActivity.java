@@ -64,9 +64,7 @@ public class mainMapActivity extends AppCompatActivity implements
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private Context mContext;
-    private static final int COARSE_PERMISSION_REQUEST_CODE = 2;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private static final int FINE_PERMISSION_REQUEST_CODE = 1;
     private static final int WRITE_PERMISSION_REQUEST_CODE = 3;
 
     private GoogleMap mMap;
@@ -99,7 +97,6 @@ public class mainMapActivity extends AppCompatActivity implements
 
     //signal strength vars
     private SignalStrengthService signalService;
-    public int signalStrengthDBm = 0;
 
     private LocationCoordinatesService locationService;
 
@@ -159,6 +156,7 @@ public class mainMapActivity extends AppCompatActivity implements
         }
 
         showTreePerm(dir);
+        ConfigurationManager cm = new ConfigurationManager();
     }
 
     @Override
