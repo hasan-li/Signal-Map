@@ -18,7 +18,7 @@
         android:id="@+id/ConfigurationTitleTV"
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
-        android:textAppearance="@android:style/TextAppearance.Material.Large" />
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -27,22 +27,14 @@
         android:ems="10"
         android:id="@+id/down_freq"
         android:layout_below="@+id/textView"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:text="@string/upload_freq"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView2"
-        android:layout_marginTop="45dp"
-        android:layout_below="@+id/down_freq"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignEnd="@+id/defaultBtn" />
 
     <Button
-        android:text="@string/reset_button"
+        android:text="@string/default_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/resetBtn"
+        android:id="@+id/defaultBtn"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true" />
 
@@ -71,5 +63,15 @@
         android:id="@+id/up_freq"
         android:layout_marginTop="21dp"
         android:layout_alignTop="@+id/textView2"
+        android:layout_alignParentStart="true"
+        android:layout_alignEnd="@+id/down_freq" />
+
+    <TextView
+        android:text="@string/upload_freq"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView2"
+        android:layout_marginTop="48dp"
+        android:layout_below="@+id/down_freq"
         android:layout_alignParentStart="true" />
 </RelativeLayout>

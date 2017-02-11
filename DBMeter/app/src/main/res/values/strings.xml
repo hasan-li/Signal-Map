@@ -13,6 +13,6 @@
     <string name="conf_man_tv">Configuration Manager</string>
     <string name="upload_freq">Server update frequency (seconds)</string>
     <string name="download_freq">Map download frequency (seconds)</string>
-    <string name="reset_button">Reset</string>
+    <string name="default_button">Default</string>
     <string name="save_button">Save</string>
 </resources>

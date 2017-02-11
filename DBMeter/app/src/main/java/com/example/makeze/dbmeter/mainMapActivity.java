@@ -106,10 +106,8 @@ public class mainMapActivity extends AppCompatActivity implements
     private boolean locationBound = false;
     private boolean permissionsGranted = false;
     List<String> backUp = new ArrayList<String>();
-    private int downloadFrequency = 10000;
-    private int uploadFrequency = 10000;
 
-    private UploaderClass serverUploader;
+    private ConfigurationManager cm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,6 +115,7 @@ public class mainMapActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 
         this.mContext = this;
+        cm = new ConfigurationManager();
         checkPermissions();
         // create a folder for storage
         setContentView(R.layout.activity_main_map);
@@ -147,7 +146,6 @@ public class mainMapActivity extends AppCompatActivity implements
         mTransparencyBar.setProgress(0);
 
         dir = new File("/storage/emulated/0/DBMeter/"); // create your own directory name and read it instead
-        //dir = new File(Environment.getExternalStorageDirectory()+"/DBMeter");
         System.out.println("dir: " + dir);
 
         // have the object build the directory structure, if needed.
@@ -156,7 +154,6 @@ public class mainMapActivity extends AppCompatActivity implements
         }
 
         showTreePerm(dir);
-        ConfigurationManager cm = new ConfigurationManager();
     }
 
     @Override
@@ -196,7 +193,7 @@ public class mainMapActivity extends AppCompatActivity implements
                     }
                     //new ImageDownloaderClass().execute();
                 }
-                handler.postDelayed(this, uploadFrequency);
+                handler.postDelayed(this, cm.getUploadFreq());
             }
         });
     }
@@ -217,7 +214,7 @@ public class mainMapActivity extends AppCompatActivity implements
                         new LinkDownloaderClass(params).execute();
                     }
                 }
-                handler.postDelayed(this, downloadFrequency);
+                handler.postDelayed(this, cm.getDownloadFreq());
             }
         });
     }
