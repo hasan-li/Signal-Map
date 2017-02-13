@@ -14,7 +14,9 @@ public class ConfigurationManager {
     }
 
     public void setUploadFreq(int serverUploadFreq){
-        this.serverUploadFreq = serverUploadFreq;
+        if(serverUploadFreq!=0)
+            this.serverUploadFreq = serverUploadFreq*1000;
+        System.out.println("GG: "+this.serverUploadFreq);
     }
 
     public int getUploadFreq(){
@@ -22,7 +24,9 @@ public class ConfigurationManager {
     }
 
     public void setDownloadFreq(int serverDownloadFreq){
-        this.serverDownloadFreq = serverDownloadFreq;
+        if(serverDownloadFreq!=0)
+            this.serverDownloadFreq = serverDownloadFreq*1000;
+        System.out.println("GG: "+this.serverDownloadFreq);
     }
 
     public int getDownloadFreq(){

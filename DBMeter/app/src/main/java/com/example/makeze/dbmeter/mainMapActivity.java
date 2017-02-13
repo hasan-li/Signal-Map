@@ -108,6 +108,7 @@ public class mainMapActivity extends AppCompatActivity implements
     List<String> backUp = new ArrayList<String>();
 
     private ConfigurationManager cm;
+    private Bundle freq;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -561,10 +562,15 @@ public class mainMapActivity extends AppCompatActivity implements
         }
     }
 
-
     @Override
     protected void onResumeFragments() {
         super.onResumeFragments();
+        freq = getIntent().getExtras();
+        int [] frequencies = freq.getIntArray("save");
+        if(freq.getIntArray("default"))
+        int df = frequencies[0];
+        int uf = frequencies[1];
+
         if (mPermissionDenied) {
             // Permission was not granted, display error dialog.
             showMissingPermissionError();
