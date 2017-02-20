@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class ConfigurationManagerActivity extends AppCompatActivity {
     EditText df,uf; // dowload, upload frequencies
@@ -35,6 +36,10 @@ public class ConfigurationManagerActivity extends AppCompatActivity {
         });
     }
     private void saveValues(View v){
+        if((isEmpty(df)) || (isEmpty(uf))){
+            Toast.makeText(getApplicationContext(),"Please set all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
         freq = new int[2];
         freq[0] = Integer.valueOf(df.getText().toString());
         freq[1] = Integer.valueOf(uf.getText().toString());
@@ -44,5 +49,12 @@ public class ConfigurationManagerActivity extends AppCompatActivity {
     private void defaultValues(View v){
         i.putExtra("default", -1);
         startActivity(i);
+    }
+
+    private boolean isEmpty(EditText etText) {
+        if (etText.getText().toString().trim().length() > 0)
+            return false;
+
+        return true;
     }
 }

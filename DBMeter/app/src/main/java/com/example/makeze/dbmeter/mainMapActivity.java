@@ -566,10 +566,9 @@ public class mainMapActivity extends AppCompatActivity implements
     protected void onResumeFragments() {
         super.onResumeFragments();
         freq = getIntent().getExtras();
-        int [] frequencies = freq.getIntArray("save");
-        if(freq.getIntArray("default"))
-        int df = frequencies[0];
-        int uf = frequencies[1];
+        //int[] frequencies = freq.getIntArray("save");
+        //cm.setUploadFreq(frequencies[0]);
+        //cm.setDownloadFreq(frequencies[1]);
 
         if (mPermissionDenied) {
             // Permission was not granted, display error dialog.
