@@ -192,7 +192,6 @@ public class mainMapActivity extends AppCompatActivity implements
                         backUp.add("http://r1482a-02.etech.haw-hamburg.de/~w16cpteam1/cgi-bin/index?" + params);
                         new UploaderClass(params).execute();
                     }
-                    //new ImageDownloaderClass().execute();
                 }
                 handler.postDelayed(this, cm.getUploadFreq());
             }
@@ -330,7 +329,7 @@ public class mainMapActivity extends AppCompatActivity implements
                     Log.i("DEBUG", "image name error");
                 }
 
-                overlayHandler.postDelayed(this, 10000);
+                overlayHandler.postDelayed(this, cm.getDownloadFreq());
             }
         });
     }
@@ -569,9 +568,13 @@ public class mainMapActivity extends AppCompatActivity implements
         int[] frequencies=new int[2];
 
         if(freq!=null) {
-            if(freq.get("save")!=null) {
+            if(freq.getIntArray("save")!=null) {
+                frequencies=freq.getIntArray("save");
                 cm.setUploadFreq(frequencies[0]);
                 cm.setDownloadFreq(frequencies[1]);
+            }
+            if(freq.getIntArray("save")!=null) {
+                cm = new ConfigurationManager();
             }
         }
         if (mPermissionDenied) {
